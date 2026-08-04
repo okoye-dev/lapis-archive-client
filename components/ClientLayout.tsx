@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Navbar from "./Navbar";
 import { Toaster } from "./ui/toaster";
 
 interface ClientLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export default function ClientLayout({ children }: ClientLayoutProps) {

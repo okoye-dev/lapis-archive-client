@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { ChangeEvent } from "react";
 import { useFiles } from "@/hooks/useFiles";
 import { DownloadCloud } from "lucide-react";
 import { formatFileSize } from "@/utils/formatFileSize";
@@ -12,7 +13,7 @@ const Home = () => {
   const router = useRouter();
   const { files, loading, error, uploading, uploadMultipleFiles, downloadFile } = useFiles();
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || []);
     if (selectedFiles.length === 0) return;
 

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/useToast";
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 const SignIn = () => {
@@ -14,7 +15,7 @@ const SignIn = () => {
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = (e: FormEvent) => {
     e.preventDefault();
 
     // Dummy authentication logic

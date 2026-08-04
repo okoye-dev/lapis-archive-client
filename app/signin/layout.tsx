@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import "../globals.css";
 import localFont from "next/font/local";
 
@@ -36,7 +37,7 @@ const generalSans = localFont({
 export default function SigninLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div lang="en" className={`${generalSans.variable}`}>

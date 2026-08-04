@@ -1,5 +1,5 @@
 "use client";
-import React, { FC } from "react";
+import type { FC } from "react";
 // import logo from "@/app/assets/logo.jpg";
 // import menu from "@/app/assets/menu.svg";
 // import profilePic from "@/app/assets/profile-pic.svg";

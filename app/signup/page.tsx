@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import type { FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,7 +18,7 @@ const SignUp = () => {
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = (e: FormEvent) => {
     e.preventDefault();
 
     // Dummy authentication logic

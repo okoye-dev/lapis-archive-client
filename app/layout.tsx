@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
 import localFont from "next/font/local";
 import ClientLayout from "@/components/ClientLayout";
@@ -49,7 +50,7 @@ const generalSans = localFont({
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en" className={`${generalSans.variable}`}>
