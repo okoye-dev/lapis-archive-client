@@ -7,7 +7,6 @@ export interface SignupData {
   username: string;
   password: string;
   phone_number?: string;
-  crop_type?: string;
   location_id?: number;
   language?: string;
 }

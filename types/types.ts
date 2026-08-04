@@ -1,14 +1,13 @@
 export type LinkData = {
   slug: string;
   link: string;
+  accessCode: string;
+  recipientEmail: string;
   date: string;
   clicks: number;
   createdAt: string;
   name?: string;
   phone?: string;
-  location?: string;
-  cropType?: string;
-  farmSize?: string;
 };
 
 export interface User {
