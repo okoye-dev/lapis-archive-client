@@ -15,6 +15,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   const pathname = usePathname();
   const isSigninPage = pathname === "/signin";
   const isSignupPage = pathname === "/signup";
+  const isSharePage = pathname.startsWith("/share");
   const isHomePage = pathname === "/";
 
   // Scroll to top on route change
@@ -26,8 +27,8 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     <body
       className={cn(
         "relative overflow-x-hidden font-generalSans leading-[1.25rem] tracking-tight text-black",
-        isSigninPage || isSignupPage ? "pt-0" : "pt-20",
-        isHomePage || isSigninPage || isSignupPage
+        isSigninPage || isSignupPage || isSharePage ? "pt-0" : "pt-20",
+        isHomePage || isSigninPage || isSignupPage || isSharePage
           ? "bg-gradient-to-b from-primary/10 to-background"
           : ""
       )}

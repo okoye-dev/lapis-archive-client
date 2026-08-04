@@ -3,6 +3,9 @@ export type LinkData = {
   link: string;
   accessCode: string;
   recipientEmail: string;
+  fileName: string;
+  storageKey: string;
+  fileSize: number;
   date: string;
   clicks: number;
   createdAt: string;

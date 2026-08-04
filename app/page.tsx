@@ -2,25 +2,76 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useFiles } from "@/hooks/useFiles";
-import { DownloadCloud } from "lucide-react";
+import { useToast } from "@/hooks/useToast";
+import { useShareStore } from "@/store/shareStore";
+import type { FileData } from "@/api/files";
+import type { LinkData } from "@/types/types";
+import { DownloadCloud, Share2 } from "lucide-react";
 import { formatFileSize } from "@/utils/formatFileSize";
 
 const Home = () => {
   const router = useRouter();
   const { files, loading, error, uploading, uploadMultipleFiles, downloadFile } = useFiles();
+  const { toast } = useToast();
+  const createShare = useShareStore((state) => state.createShare);
+
+  const [shareFile, setShareFile] = useState<FileData | null>(null);
+  const [shareEmail, setShareEmail] = useState("");
+  const [shareResult, setShareResult] = useState<LinkData | null>(null);
 
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || []);
     if (selectedFiles.length === 0) return;
 
     await uploadMultipleFiles(selectedFiles);
-    
+
     // Clear the input
     event.target.value = '';
+  };
+
+  const closeShareDialog = () => {
+    setShareFile(null);
+    setShareEmail("");
+    setShareResult(null);
+  };
+
+  const handleCreateShare = (e: FormEvent) => {
+    e.preventDefault();
+    if (!shareFile) return;
+
+    const share = createShare({
+      fileName: shareFile.name,
+      storageKey: shareFile.storage_key,
+      fileSize: shareFile.size,
+      recipientEmail: shareEmail,
+    });
+    setShareResult(share);
+
+    // Sending isn't wired up to a real email provider yet — this
+    // simulates it so the flow is demoable end to end.
+    toast({
+      title: "Code emailed",
+      description: `Sent the access code and link to ${shareEmail}.`,
+    });
+  };
+
+  const handleCopy = async (text: string) => {
+    await navigator.clipboard.writeText(text);
+    toast({ title: "Copied to clipboard" });
   };
 
   const features = [
@@ -113,9 +164,17 @@ const Home = () => {
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-400">{formatFileSize(file.size)}</span>
                         <Button
+                          onClick={() => setShareFile(file)}
+                          variant="outline"
+                          aria-label="Share"
+                        >
+                          <Share2 />
+                        </Button>
+                        <Button
                           onClick={() => downloadFile(file.storage_key)}
                           variant="outline"
                           className="hover:bg-primary/10"
+                          aria-label="Download"
                         >
                           <DownloadCloud />
                         </Button>
@@ -150,6 +209,85 @@ const Home = () => {
           ))}
         </div>
       </section>
+
+      <Dialog
+        open={!!shareFile}
+        onOpenChange={(open) => !open && closeShareDialog()}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share {shareFile?.name}</DialogTitle>
+            <DialogDescription>
+              {shareResult
+                ? "Send this link and code to your recipient."
+                : "We'll generate a link and access code, and email both to your recipient."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {!shareResult ? (
+            <form onSubmit={handleCreateShare} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="recipientEmail">Recipient email</Label>
+                <Input
+                  id="recipientEmail"
+                  type="email"
+                  placeholder="friend@example.com"
+                  value={shareEmail}
+                  onChange={(e) => setShareEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <DialogFooter>
+                <Button type="submit" className="w-full">
+                  Generate link
+                </Button>
+              </DialogFooter>
+            </form>
+          ) : (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Share link</Label>
+                <div className="flex gap-2">
+                  <Input readOnly value={shareResult.link} />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleCopy(shareResult.link)}
+                  >
+                    Copy
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Access code</Label>
+                <div className="flex gap-2">
+                  <Input
+                    readOnly
+                    value={shareResult.accessCode}
+                    className="tracking-widest"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleCopy(shareResult.accessCode)}
+                  >
+                    Copy
+                  </Button>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  className="w-full"
+                  onClick={closeShareDialog}
+                >
+                  Done
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
