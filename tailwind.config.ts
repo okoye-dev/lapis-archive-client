@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
 
 const config = {
   darkMode: ["class"],
@@ -32,6 +33,8 @@ const config = {
         generalSans: ["var(--font-general-sans)"],
       },
       colors: {
+        gray: colors.gray,
+        zinc: colors.zinc,
         black: "#212121",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
