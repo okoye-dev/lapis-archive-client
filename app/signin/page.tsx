@@ -48,7 +48,7 @@ const SignIn = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-md p-8">
+      <Card className="w-full max-w-md p-6 sm:p-8">
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-3xl font-bold text-foreground">
             Lapis Archive

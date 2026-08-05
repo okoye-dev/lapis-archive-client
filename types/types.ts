@@ -2,7 +2,7 @@ export type LinkData = {
   slug: string;
   link: string;
   accessCode: string;
-  recipientEmail: string;
+  recipientEmail?: string;
   fileName: string;
   storageKey: string;
   fileSize: number;

@@ -60,17 +60,17 @@ const Navbar: FC<IProps> = ({ className }: IProps) => {
           className,
         )}
       >
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-10 py-4">
-          <div>
-            <h1 className="text-2xl font-bold text-primary"> 📁 Lapis Archive</h1>
-            <p className="text-sm text-muted-foreground">
+        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6 lg:px-10">
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-bold text-primary sm:text-2xl"> 📁 Lapis Archive</h1>
+            <p className="hidden text-sm text-muted-foreground sm:block">
               {isAdminPage
                 ? "Dashboard & Management"
                 : "Open Source File Sharing & Collaboration Platform"}
             </p>
           </div>
           {isAdminPage && (
-            <div className="flex gap-2">
+            <div className="flex shrink-0 gap-2">
               <Button variant="outline" size="sm">
                 <Settings className="mr-2 h-4 w-4" />
                 Settings

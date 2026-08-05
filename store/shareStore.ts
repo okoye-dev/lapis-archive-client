@@ -16,7 +16,7 @@ interface CreateShareInput {
   fileName: string;
   storageKey: string;
   fileSize: number;
-  recipientEmail: string;
+  recipientEmail?: string;
 }
 
 interface ShareState {

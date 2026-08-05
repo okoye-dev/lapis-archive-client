@@ -59,7 +59,7 @@ const SharePage = () => {
   if (!share) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
-        <Card className="w-full max-w-md p-8 text-center">
+        <Card className="w-full max-w-md p-6 text-center sm:p-8">
           <h1 className="mb-2 text-xl font-semibold text-foreground">
             Link not found
           </h1>
@@ -74,7 +74,7 @@ const SharePage = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-md p-8">
+      <Card className="w-full max-w-md p-6 sm:p-8">
         <div className="mb-6 text-center">
           <h1 className="mb-2 text-2xl font-bold text-foreground">
             📁 Lapis Archive

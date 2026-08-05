@@ -46,7 +46,7 @@ const SignUp = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-md p-8">
+      <Card className="w-full max-w-md p-6 sm:p-8">
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-3xl font-bold text-foreground">
             📁 Lapis Archive
@@ -60,7 +60,7 @@ const SignUp = () => {
         </div>
 
         <form onSubmit={handleSignUp} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName">First Name</Label>
               <Input

@@ -34,7 +34,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
       )}
     >
       <Navbar />
-      <div className="mx-auto max-w-[1440px] px-6">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6">
         {children}
         <Toaster />
       </div>

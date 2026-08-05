@@ -17,6 +17,7 @@ import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { useFiles } from "@/hooks/useFiles";
 import { useToast } from "@/hooks/useToast";
+import { useFormatDate as formatDate } from "@/hooks/useFormatDate";
 import { useShareStore } from "@/store/shareStore";
 import type { FileData } from "@/api/files";
 import type { LinkData } from "@/types/types";
@@ -28,6 +29,7 @@ const Home = () => {
   const { files, loading, error, uploading, uploadMultipleFiles, downloadFile } = useFiles();
   const { toast } = useToast();
   const createShare = useShareStore((state) => state.createShare);
+  const shares = useShareStore((state) => state.shares);
 
   const [shareFile, setShareFile] = useState<FileData | null>(null);
   const [shareEmail, setShareEmail] = useState("");
@@ -57,16 +59,23 @@ const Home = () => {
       fileName: shareFile.name,
       storageKey: shareFile.storage_key,
       fileSize: shareFile.size,
-      recipientEmail: shareEmail,
+      recipientEmail: shareEmail || undefined,
     });
     setShareResult(share);
 
-    // Sending isn't wired up to a real email provider yet — this
-    // simulates it so the flow is demoable end to end.
-    toast({
-      title: "Code emailed",
-      description: `Sent the access code and link to ${shareEmail}.`,
-    });
+    if (shareEmail) {
+      // Sending isn't wired up to a real email provider yet — this
+      // simulates it so the flow is demoable end to end.
+      toast({
+        title: "Code emailed",
+        description: `Sent the access code and link to ${shareEmail}.`,
+      });
+    } else {
+      toast({
+        title: "Link generated",
+        description: "Copy the link and code below to share them yourself.",
+      });
+    }
   };
 
   const handleCopy = async (text: string) => {
@@ -97,18 +106,19 @@ const Home = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="container mx-auto px-4 py-20 text-center">
-          <h1 className="mb-4 text-5xl font-bold text-foreground">
+        <div className="container mx-auto px-4 py-12 text-center sm:py-16 md:py-20">
+          <h1 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl md:text-5xl">
             📁 Lapis Archive
           </h1>
-          <p className="mx-auto mb-8 max-w-2xl text-xl text-muted-foreground">
+          <p className="mx-auto mb-8 max-w-2xl text-base text-muted-foreground sm:text-lg md:text-xl">
             Open Source File Sharing & Collaboration Platform
           </p>
-          <div className="flex justify-center gap-4">
-            <Button onClick={() => router.push("/signin")}>
+          <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
+            <Button className="w-full sm:w-auto" onClick={() => router.push("/signin")}>
               Sign In
             </Button>
             <Button
+              className="w-full sm:w-auto"
               onClick={() => router.push("/signup")}
             >
               Get Started
@@ -118,14 +128,14 @@ const Home = () => {
       </section>
 
       {/* File Upload Section */}
-      <section className="container mx-auto px-4 py-16">
+      <section className="container mx-auto px-4 py-10 sm:py-16">
         <div className="mx-auto max-w-2xl">
-          <h2 className="mb-8 text-center text-3xl font-bold text-foreground">
+          <h2 className="mb-6 text-center text-2xl font-bold text-foreground sm:mb-8 sm:text-3xl">
             Upload Your Files
           </h2>
-          
-          <Card className="p-8">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+
+          <Card className="p-4 sm:p-8">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center sm:p-8">
               <div className="mx-auto h-12 w-12 text-gray-400 mb-4 flex items-center justify-center text-4xl">
                 📁
               </div>
@@ -154,29 +164,31 @@ const Home = () => {
                 <h3 className="text-lg font-medium mb-4">Uploaded Files:</h3>
                 <div className="space-y-2">
                   {files.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-textGray">
-                      <div className="flex-1">
-                        <span className="text-sm font-medium">{file.name}</span>
-                        <div className="text-xs text-gray-500">
+                    <div key={index} className="flex items-center justify-between gap-2 p-3 bg-gray-50 rounded-xl border border-textGray">
+                      <div className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">{file.name}</span>
+                        <div className="truncate text-xs text-gray-500">
                           ID: {file.id}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400">{formatFileSize(file.size)}</span>
+                      <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+                        <span className="hidden text-xs text-gray-400 sm:inline">{formatFileSize(file.size)}</span>
                         <Button
                           onClick={() => setShareFile(file)}
                           variant="outline"
+                          size="icon"
                           aria-label="Share"
                         >
-                          <Share2 />
+                          <Share2 className="h-4 w-4" />
                         </Button>
                         <Button
                           onClick={() => downloadFile(file.storage_key)}
                           variant="outline"
+                          size="icon"
                           className="hover:bg-primary/10"
                           aria-label="Download"
                         >
-                          <DownloadCloud />
+                          <DownloadCloud className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -188,9 +200,79 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Shared Links Section */}
+      {shares.length > 0 && (
+        <section className="container mx-auto px-4 py-10 sm:py-16">
+          <div className="mx-auto max-w-2xl">
+            <h2 className="mb-6 text-center text-2xl font-bold text-foreground sm:mb-8 sm:text-3xl">
+              Shared Links
+            </h2>
+
+            <Card className="p-4 sm:p-8">
+              <div className="space-y-3">
+                {shares.map((share) => (
+                  <div
+                    key={share.slug}
+                    className="rounded-xl border border-textGray bg-gray-50 p-3"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                        {share.fileName}
+                      </span>
+                      <span className="shrink-0 text-xs text-gray-400">
+                        {formatDate(share.createdAt)}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {share.recipientEmail
+                        ? `Emailed to ${share.recipientEmail}`
+                        : "Not emailed — shared manually"}
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                      <div className="flex min-w-0 flex-1 items-center gap-2">
+                        <Input
+                          readOnly
+                          value={share.link}
+                          className="min-w-0 flex-1 text-xs"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="shrink-0"
+                          onClick={() => handleCopy(share.link)}
+                        >
+                          Copy link
+                        </Button>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <Input
+                          readOnly
+                          value={share.accessCode}
+                          className="w-24 shrink-0 text-xs tracking-widest"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="shrink-0"
+                          onClick={() => handleCopy(share.accessCode)}
+                        >
+                          Copy code
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </section>
+      )}
+
       {/* Features Section */}
-      <section className="container mx-auto px-4 py-16">
-        <h2 className="mb-12 text-center text-3xl font-bold text-foreground">
+      <section className="container mx-auto px-4 py-10 sm:py-16">
+        <h2 className="mb-8 text-center text-2xl font-bold text-foreground sm:mb-12 sm:text-3xl">
           File Sharing Made Simple
         </h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -219,22 +301,23 @@ const Home = () => {
             <DialogTitle>Share {shareFile?.name}</DialogTitle>
             <DialogDescription>
               {shareResult
-                ? "Send this link and code to your recipient."
-                : "We'll generate a link and access code, and email both to your recipient."}
+                ? shareResult.recipientEmail
+                  ? `Sent to ${shareResult.recipientEmail}. You can also copy the link and code yourself.`
+                  : "Copy the link and code below to share them with anyone."
+                : "We'll generate a link and access code for this file. Emailing it is optional — you can just copy and send them yourself."}
             </DialogDescription>
           </DialogHeader>
 
           {!shareResult ? (
             <form onSubmit={handleCreateShare} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="recipientEmail">Recipient email</Label>
+                <Label htmlFor="recipientEmail">Recipient email (optional)</Label>
                 <Input
                   id="recipientEmail"
                   type="email"
                   placeholder="friend@example.com"
                   value={shareEmail}
                   onChange={(e) => setShareEmail(e.target.value)}
-                  required
                 />
               </div>
               <DialogFooter>
@@ -248,10 +331,11 @@ const Home = () => {
               <div className="space-y-2">
                 <Label>Share link</Label>
                 <div className="flex gap-2">
-                  <Input readOnly value={shareResult.link} />
+                  <Input readOnly value={shareResult.link} className="min-w-0 flex-1" />
                   <Button
                     type="button"
                     variant="outline"
+                    className="shrink-0"
                     onClick={() => handleCopy(shareResult.link)}
                   >
                     Copy
@@ -264,11 +348,12 @@ const Home = () => {
                   <Input
                     readOnly
                     value={shareResult.accessCode}
-                    className="tracking-widest"
+                    className="min-w-0 flex-1 tracking-widest"
                   />
                   <Button
                     type="button"
                     variant="outline"
+                    className="shrink-0"
                     onClick={() => handleCopy(shareResult.accessCode)}
                   >
                     Copy
