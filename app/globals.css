@@ -129,7 +129,7 @@
   h2,
   h3,
   h4 {
-    @apply tracking-tight;
+    @apply tracking-tighter;
   }
 }
 

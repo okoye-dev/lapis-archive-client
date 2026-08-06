@@ -30,7 +30,13 @@ const config = {
     },
     extend: {
       fontFamily: {
-        generalSans: ["var(--font-general-sans)"],
+        sans: [
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "var(--font-inter)",
+          "system-ui",
+          "sans-serif",
+        ],
       },
       colors: {
         gray: colors.gray,

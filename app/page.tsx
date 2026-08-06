@@ -75,7 +75,7 @@ const Home = () => {
         <div className="container mx-auto grid gap-10 px-4 py-16 sm:py-20 md:grid-cols-[1.4fr_1fr] md:items-center md:py-28">
           <div>
             <h1 className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-              <span className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
+              <span className="text-4xl font-bold tracking-tighter text-foreground sm:text-5xl md:text-6xl">
                 Share
               </span>
               <span
