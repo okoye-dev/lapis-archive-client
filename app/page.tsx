@@ -80,7 +80,7 @@ const Home = () => {
               </span>
               <span
                 key={heroWords[activeWordIndex]}
-                className="text-4xl font-bold tracking-tight text-primary transition-opacity duration-500 sm:text-5xl md:text-6xl"
+                className="text-4xl font-bold tracking-tighter text-primary transition-opacity duration-500 sm:text-5xl md:text-6xl"
               >
                 {heroWords[activeWordIndex]}
               </span>
