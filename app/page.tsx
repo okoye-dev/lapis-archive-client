@@ -105,21 +105,25 @@ const Home = () => {
           <div className="space-y-6">
             <p className="text-base text-muted-foreground sm:text-lg">
               Upload a file, get a public link and an access code, send both
-              to whoever needs it. No account required on their end, no
-              email provider required on yours.
+              to whoever needs it. No account required to upload — we only
+              ask for an email when you're ready to share.
             </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button className="w-full sm:w-auto" onClick={() => router.push("/signup")}>
-                Get Started
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+            <div className="flex flex-col items-start gap-3">
               <Button
-                variant="outline"
-                className="w-full sm:w-auto"
-                onClick={() => router.push("/signin")}
+                size="lg"
+                className="w-full text-lg sm:w-auto sm:px-10 sm:py-7 sm:text-xl"
+                onClick={() => router.push("/dashboard")}
               >
-                Sign In
+                Upload something
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
+              <button
+                type="button"
+                onClick={() => router.push("/signin")}
+                className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+              >
+                Already have an account? Sign in
+              </button>
             </div>
           </div>
         </div>
@@ -213,9 +217,13 @@ const Home = () => {
           <p className="mx-auto mb-8 max-w-md text-muted-foreground">
             It takes less time than writing the email you'd send instead.
           </p>
-          <Button onClick={() => router.push("/signup")}>
-            Get Started
-            <ArrowRight className="ml-2 h-4 w-4" />
+          <Button
+            size="lg"
+            className="text-lg sm:px-10 sm:py-7"
+            onClick={() => router.push("/dashboard")}
+          >
+            Upload something
+            <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
       </section>

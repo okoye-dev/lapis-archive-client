@@ -66,6 +66,16 @@ const SharePage = () => {
     }
   };
 
+  if (!hasMounted) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <Card className="w-full max-w-md p-6 text-center sm:p-8">
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </Card>
+      </div>
+    );
+  }
+
   if (!share) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">

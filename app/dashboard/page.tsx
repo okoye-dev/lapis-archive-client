@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { useFiles } from "@/hooks/useFiles";
 import { useToast } from "@/hooks/useToast";
@@ -28,10 +28,21 @@ const Dashboard = () => {
   const { toast } = useToast();
   const createShare = useShareStore((state) => state.createShare);
   const shares = useShareStore((state) => state.shares);
+  const sharerEmail = useShareStore((state) => state.sharerEmail);
+  const setSharerEmail = useShareStore((state) => state.setSharerEmail);
 
   const [shareFile, setShareFile] = useState<FileData | null>(null);
+  const [gateEmail, setGateEmail] = useState("");
   const [shareEmail, setShareEmail] = useState("");
   const [shareResult, setShareResult] = useState<LinkData | null>(null);
+
+  // shares comes from a localStorage-persisted store, unavailable during
+  // server rendering — gate on mount so the server and the client's first
+  // render agree on whether this section exists at all.
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || []);
@@ -45,8 +56,19 @@ const Dashboard = () => {
 
   const closeShareDialog = () => {
     setShareFile(null);
+    setGateEmail("");
     setShareEmail("");
     setShareResult(null);
+  };
+
+  const handleSignUpToShare = (e: FormEvent) => {
+    e.preventDefault();
+    if (!gateEmail) return;
+
+    // No verification code is sent — there's no email provider wired up
+    // yet. This just registers the sharer's email locally so sharing has
+    // an identity attached to it, without requiring paid infra to do so.
+    setSharerEmail(gateEmail);
   };
 
   const handleCreateShare = (e: FormEvent) => {
@@ -185,7 +207,7 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {shares.length > 0 && (
+      {hasMounted && shares.length > 0 && (
         <section className="container mx-auto px-4 py-10 sm:py-16">
           <div className="mx-auto max-w-2xl">
             <h2 className="mb-6 text-center text-2xl font-bold text-foreground sm:mb-8 sm:text-3xl">
@@ -260,17 +282,42 @@ const Dashboard = () => {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Share {shareFile?.name}</DialogTitle>
+            <DialogTitle>
+              {sharerEmail
+                ? `Share ${shareFile?.name}`
+                : "Sign up to share this file"}
+            </DialogTitle>
             <DialogDescription>
-              {shareResult
-                ? shareResult.recipientEmail
-                  ? `Sent to ${shareResult.recipientEmail}. You can also copy the link and code yourself.`
-                  : "Copy the link and code below to share them with anyone."
-                : "We'll generate a link and access code for this file. Emailing it is optional — you can just copy and send them yourself."}
+              {!sharerEmail
+                ? "Uploading is free for anyone, and files are kept for 24 hours. Add your email — no password, no code sent — to share this file and keep it for 3 days instead."
+                : shareResult
+                  ? shareResult.recipientEmail
+                    ? `Sent to ${shareResult.recipientEmail}. You can also copy the link and code yourself.`
+                    : "Copy the link and code below to share them with anyone."
+                  : "We'll generate a link and access code for this file. Emailing it is optional — you can just copy and send them yourself."}
             </DialogDescription>
           </DialogHeader>
 
-          {!shareResult ? (
+          {!sharerEmail ? (
+            <form onSubmit={handleSignUpToShare} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="gateEmail">Your email</Label>
+                <Input
+                  id="gateEmail"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={gateEmail}
+                  onChange={(e) => setGateEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <DialogFooter>
+                <Button type="submit" className="w-full">
+                  Continue
+                </Button>
+              </DialogFooter>
+            </form>
+          ) : !shareResult ? (
             <form onSubmit={handleCreateShare} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="recipientEmail">Recipient email (optional)</Label>

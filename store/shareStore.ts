@@ -21,6 +21,8 @@ interface CreateShareInput {
 
 interface ShareState {
   shares: LinkData[];
+  sharerEmail: string | null;
+  setSharerEmail: (email: string) => void;
   createShare: (input: CreateShareInput) => LinkData;
   getShareBySlug: (slug: string) => LinkData | undefined;
   recordAccess: (slug: string) => void;
@@ -30,6 +32,9 @@ export const useShareStore = create<ShareState>()(
   persist(
     (set, get) => ({
       shares: [],
+      sharerEmail: null,
+
+      setSharerEmail: (email) => set({ sharerEmail: email }),
 
       createShare: ({ fileName, storageKey, fileSize, recipientEmail }) => {
         const now = new Date().toISOString();
