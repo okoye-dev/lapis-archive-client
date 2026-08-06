@@ -75,12 +75,12 @@ const Home = () => {
         <div className="container mx-auto grid gap-10 px-4 py-16 sm:py-20 md:grid-cols-[1.4fr_1fr] md:items-center md:py-28">
           <div>
             <h1 className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-              <span className="text-4xl font-bold tracking-tighter text-foreground sm:text-5xl md:text-6xl">
+              <span className="text-5xl font-bold tracking-tighter text-foreground sm:text-6xl md:text-7xl">
                 Share
               </span>
               <span
                 key={heroWords[activeWordIndex]}
-                className="text-4xl font-bold tracking-tighter text-primary transition-opacity duration-500 sm:text-5xl md:text-6xl"
+                className="text-5xl font-bold tracking-tighter text-primary transition-opacity duration-500 sm:text-6xl md:text-7xl"
               >
                 {heroWords[activeWordIndex]}
               </span>
@@ -133,7 +133,7 @@ const Home = () => {
       <section className="bg-zinc-950 py-16 text-white sm:py-24">
         <div className="container mx-auto grid gap-10 px-4 md:grid-cols-2 md:items-center md:gap-16">
           <div>
-            <h2 className="mb-6 text-3xl font-bold sm:text-4xl">
+            <h2 className="mb-6 text-4xl font-bold sm:text-5xl">
               Built for one job: get a file from you to someone else, safely
             </h2>
             {/* Personalize this paragraph with your own reason for building Lapis Archive */}
@@ -155,7 +155,7 @@ const Home = () => {
 
       {/* Feature Showcase Section */}
       <section className="container mx-auto px-4 py-16 sm:py-24">
-        <h2 className="mb-10 text-center text-2xl font-bold text-foreground sm:mb-14 sm:text-3xl">
+        <h2 className="mb-10 text-center text-3xl font-bold text-foreground sm:mb-14 sm:text-4xl">
           Powering simple, private file sharing
         </h2>
 
@@ -193,7 +193,7 @@ const Home = () => {
         >
           <PlaceholderImage label={currentTab.imageLabel} />
           <div>
-            <h3 className="mb-4 text-2xl font-bold text-foreground">
+            <h3 className="mb-4 text-2xl font-bold text-foreground sm:text-3xl">
               {currentTab.heading}
             </h3>
             <ul className="space-y-3">
@@ -211,7 +211,7 @@ const Home = () => {
       {/* Final CTA Section */}
       <section className="border-t border-border bg-muted/30 py-16 text-center sm:py-20">
         <div className="container mx-auto px-4">
-          <h2 className="mb-4 text-2xl font-bold text-foreground sm:text-3xl">
+          <h2 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl">
             Ready to share your first file?
           </h2>
           <p className="mx-auto mb-8 max-w-md text-muted-foreground">
