@@ -20,7 +20,7 @@ import { useFormatDate as formatDate } from "@/hooks/useFormatDate";
 import { useShareStore } from "@/store/shareStore";
 import type { FileData } from "@/api/files";
 import type { LinkData } from "@/types/types";
-import { DownloadCloud, Share2 } from "lucide-react";
+import { DownloadCloud, Share2, UploadCloud } from "lucide-react";
 import { formatFileSize } from "@/utils/formatFileSize";
 
 const Dashboard = () => {
@@ -77,27 +77,44 @@ const Dashboard = () => {
   };
 
   const handleCopy = async (text: string) => {
-    await navigator.clipboard.writeText(text);
-    toast({ title: "Copied to clipboard" });
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Copied to clipboard" });
+    } catch {
+      toast({
+        title: "Couldn't copy",
+        description: "Select and copy the text manually instead.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <div className="min-h-screen">
       <section className="container mx-auto px-4 py-10 sm:py-16">
         <div className="mx-auto max-w-2xl">
-          <h1 className="mb-6 text-2xl font-bold text-foreground sm:mb-8 sm:text-3xl">
-            Your Files
-          </h1>
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+              Your Files
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground sm:text-base">
+              Upload a file to get a shareable link and access code for it.
+            </p>
+          </div>
 
           <Card className="p-4 sm:p-8">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center sm:p-8">
-              <div className="mx-auto h-12 w-12 text-gray-400 mb-4 flex items-center justify-center text-4xl">
-                📁
+            {error && (
+              <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                Couldn't load your files: {error}
               </div>
-              <p className="text-lg font-medium text-gray-900 mb-2">
+            )}
+
+            <div className="rounded-lg border-2 border-dashed border-border p-6 text-center sm:p-12">
+              <UploadCloud className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
+              <p className="mb-1 text-base font-medium text-foreground sm:text-lg">
                 Drop files here or click to upload
               </p>
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="mb-6 text-sm text-muted-foreground">
                 Support for all file types
               </p>
               <input
@@ -114,20 +131,34 @@ const Dashboard = () => {
               </label>
             </div>
 
+            {loading && files.length === 0 && !error && (
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                Loading your files...
+              </p>
+            )}
+
+            {!loading && !error && files.length === 0 && (
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                No files yet — upload one to get started.
+              </p>
+            )}
+
             {files.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-lg font-medium mb-4">Uploaded Files:</h3>
+                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                  Uploaded Files
+                </h3>
                 <div className="space-y-2">
                   {files.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between gap-2 p-3 bg-gray-50 rounded-xl border border-textGray">
+                    <div key={index} className="flex items-center justify-between gap-2 rounded-xl border border-border bg-muted/30 p-3">
                       <div className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">{file.name}</span>
-                        <div className="truncate text-xs text-gray-500">
+                        <span className="block truncate text-sm font-medium text-foreground">{file.name}</span>
+                        <div className="truncate text-xs text-muted-foreground">
                           ID: {file.id}
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-                        <span className="hidden text-xs text-gray-400 sm:inline">{formatFileSize(file.size)}</span>
+                        <span className="hidden text-xs text-muted-foreground sm:inline">{formatFileSize(file.size)}</span>
                         <Button
                           onClick={() => setShareFile(file)}
                           variant="outline"
@@ -140,7 +171,6 @@ const Dashboard = () => {
                           onClick={() => downloadFile(file.storage_key)}
                           variant="outline"
                           size="icon"
-                          className="hover:bg-primary/10"
                           aria-label="Download"
                         >
                           <DownloadCloud className="h-4 w-4" />
@@ -167,17 +197,17 @@ const Dashboard = () => {
                 {shares.map((share) => (
                   <div
                     key={share.slug}
-                    className="rounded-xl border border-textGray bg-gray-50 p-3"
+                    className="rounded-xl border border-border bg-muted/30 p-3"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
                         {share.fileName}
                       </span>
-                      <span className="shrink-0 text-xs text-gray-400">
+                      <span className="shrink-0 text-xs text-muted-foreground">
                         {formatDate(share.createdAt)}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {share.recipientEmail
                         ? `Emailed to ${share.recipientEmail}`
                         : "Not emailed — shared manually"}

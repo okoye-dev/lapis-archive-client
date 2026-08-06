@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useParams } from "next/navigation";
 import { DownloadCloud, File as FileIcon } from "lucide-react";
@@ -23,6 +23,16 @@ const SharePage = () => {
   const [code, setCode] = useState("");
   const [unlocked, setUnlocked] = useState(false);
   const [downloading, setDownloading] = useState(false);
+
+  // The share store persists to localStorage, which isn't available during
+  // server rendering. Rendering based on `share` before the client has
+  // mounted would make the server's "not found" HTML mismatch whatever the
+  // client renders once localStorage data is available, so we wait one
+  // extra render before trusting the store's data.
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleUnlock = (e: FormEvent) => {
     e.preventDefault();
