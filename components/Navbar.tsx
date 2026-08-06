@@ -1,5 +1,6 @@
 "use client";
 import type { FC } from "react";
+import Link from "next/link";
 // import logo from "@/app/assets/logo.jpg";
 // import menu from "@/app/assets/menu.svg";
 // import profilePic from "@/app/assets/profile-pic.svg";
@@ -62,7 +63,11 @@ const Navbar: FC<IProps> = ({ className }: IProps) => {
       >
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6 lg:px-10">
           <div className="min-w-0">
-            <h1 className="truncate text-lg font-bold text-primary sm:text-2xl"> 📁 Lapis Archive</h1>
+            <Link href="/" className="block w-fit">
+              <h1 className="truncate text-lg font-bold text-primary transition-opacity hover:opacity-80 sm:text-2xl">
+                📁 Lapis Archive
+              </h1>
+            </Link>
             <p className="hidden text-sm text-muted-foreground sm:block">
               {isAdminPage
                 ? "Dashboard & Management"

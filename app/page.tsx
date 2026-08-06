@@ -74,17 +74,17 @@ const Home = () => {
       <section className="relative overflow-hidden">
         <div className="container mx-auto grid gap-10 px-4 py-16 sm:py-20 md:grid-cols-[1.4fr_1fr] md:items-center md:py-28">
           <div>
-            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-              <span className="text-4xl font-bold text-foreground sm:text-5xl md:text-6xl">
+            <h1 className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+              <span className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
                 Share
               </span>
               <span
                 key={heroWords[activeWordIndex]}
-                className="text-4xl font-bold text-primary transition-opacity duration-500 sm:text-5xl md:text-6xl"
+                className="text-4xl font-bold tracking-tight text-primary transition-opacity duration-500 sm:text-5xl md:text-6xl"
               >
                 {heroWords[activeWordIndex]}
               </span>
-            </div>
+            </h1>
             <div className="mt-2 space-y-1">
               {heroWords.map((word, index) => (
                 <div
