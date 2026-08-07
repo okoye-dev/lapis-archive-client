@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 
@@ -48,33 +48,20 @@ const FeatureShowcase = () => {
   const router = useRouter();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const clearTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  }, []);
-
+  // One timeout per slide instead of a long-lived interval: any change to
+  // activeIndex (auto or manual) restarts the countdown, so a manual click
+  // never gets an auto-advance firing a moment later.
   useEffect(() => {
     if (!isPlaying) return;
-    timerRef.current = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % slides.length);
+    const id = setTimeout(() => {
+      setActiveIndex((activeIndex + 1) % slides.length);
     }, SLIDE_DURATION_MS);
-    return clearTimer;
-  }, [isPlaying, clearTimer]);
+    return () => clearTimeout(id);
+  }, [isPlaying, activeIndex]);
 
-  // Manual navigation restarts the autoplay countdown so the next
-  // auto-advance doesn't fire a moment after the user clicked.
   const goTo = (index: number) => {
-    clearTimer();
     setActiveIndex((index + slides.length) % slides.length);
-    if (isPlaying) {
-      timerRef.current = setInterval(() => {
-        setActiveIndex((prev) => (prev + 1) % slides.length);
-      }, SLIDE_DURATION_MS);
-    }
   };
 
   const slide = slides[activeIndex];

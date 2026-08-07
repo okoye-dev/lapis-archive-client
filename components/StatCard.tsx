@@ -21,7 +21,7 @@ const StatCard = ({ icon: Icon, title, description, className }: StatCardProps) 
   return (
     <div
       className={cn(
-        "group rounded-3xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md sm:p-7",
+        "group rounded-3xl bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-7",
         className,
       )}
     >
@@ -36,7 +36,7 @@ const StatCard = ({ icon: Icon, title, description, className }: StatCardProps) 
         </defs>
       </svg>
 
-      <div className="relative mb-10 h-7 w-7 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110">
+      <div className="relative mb-5 h-6 w-6 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110 sm:mb-10 sm:h-7 sm:w-7">
         <Icon
           aria-hidden
           className="absolute inset-0 h-full w-full text-gray-400 transition-opacity duration-300 group-hover:opacity-0"
@@ -48,10 +48,10 @@ const StatCard = ({ icon: Icon, title, description, className }: StatCardProps) 
         />
       </div>
 
-      <p className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+      <p className="text-xl font-bold tracking-tight text-gray-900 sm:text-3xl">
         {title}
       </p>
-      <p className="mt-2 text-sm text-gray-500">{description}</p>
+      <p className="mt-1.5 text-sm text-gray-500 sm:mt-2">{description}</p>
     </div>
   );
 };
