@@ -31,7 +31,7 @@ const Navbar = () => {
           <Logo />
         </div>
 
-        <nav className="hidden h-11 items-center gap-0.5 rounded-full border border-orange-500/25 bg-background/95 px-1 backdrop-blur-md md:flex">
+        <nav className="hidden h-11 items-center gap-0.5 rounded-full border border-orange-500/25 bg-background/50 px-1 backdrop-blur-md md:flex">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (

@@ -22,7 +22,7 @@ const StatCard = ({ icon: Icon, title, description, className }: StatCardProps) 
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-3xl border border-primary/20 bg-primary/[0.17] p-5 backdrop-blur-sm transition-[background-color,border-color,transform] duration-500 ease-spring hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/[0.24] sm:p-7",
+        "group relative overflow-hidden rounded-3xl border border-primary/20 bg-primary/[0.17] p-5 backdrop-blur-sm transition-[background-color,border-color] duration-500 ease-spring hover:border-primary/40 hover:bg-primary/[0.24] sm:p-7",
         className,
       )}
     >
@@ -74,7 +74,7 @@ const StatCard = ({ icon: Icon, title, description, className }: StatCardProps) 
         />
       </div>
 
-      <p className="relative text-3xl font-bold tracking-tight text-white sm:text-5xl">
+      <p className="relative font-logo text-xl font-semibold italic tracking-tight text-[hsl(28,90%,78%)] sm:text-2xl">
         {title}
       </p>
       <p className="relative mt-2 text-sm text-slate-400 sm:mt-3">

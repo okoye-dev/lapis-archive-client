@@ -6,7 +6,7 @@ import { CONTACT_EMAIL, GITHUB_URL, PORTFOLIO_URL } from "@/lib/links";
 // big heading + story + one strong button on the right.
 const CreatorSection = () => {
   return (
-    <section className="container mx-auto px-4 py-16 sm:py-24">
+    <section className="container mx-auto px-6 py-16 sm:px-10 sm:py-24 lg:px-20">
       <div className="grid gap-10 md:grid-cols-2 md:items-center md:gap-16">
         <div className="rounded-[2.5rem] bg-muted p-8 sm:rounded-[3rem] sm:p-14">
           <PlaceholderImage

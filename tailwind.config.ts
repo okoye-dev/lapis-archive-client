@@ -19,7 +19,9 @@ const config = {
       },
     },
     colors: {
-      white: "#FFFFFF",
+      // Not pure #FFF: a hair of the brand's purple keeps every white
+      // surface and label in the same family as the rest of the palette.
+      white: "#FBFAFF",
       border: "EBEBEB",
       blue: "#3B72FF",
       gray: "#F7F7F7",

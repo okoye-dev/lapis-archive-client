@@ -30,7 +30,7 @@ const LogoMark = ({ className }: LogoMarkProps) => {
         width="9"
         height="9"
         rx="2.5"
-        fill="white"
+        fill="#FBFAFF"
         fillOpacity="0.4"
         transform="rotate(45 16 16)"
       />

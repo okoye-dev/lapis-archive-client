@@ -7,14 +7,14 @@
     --background: 250 45% 97%;
     --foreground: 250 15% 12%;
 
-    --card: 0 0% 100%;
+    --card: 250 100% 99%;
     --card-foreground: 250 15% 12%;
 
-    --popover: 0 0% 100%;
+    --popover: 250 100% 99%;
     --popover-foreground: 250 15% 12%;
 
     --primary: 252 65% 63%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 250 100% 99%;
 
     --secondary: 250 40% 94%;
     --secondary-foreground: 252 50% 30%;
@@ -26,7 +26,7 @@
     --accent-foreground: 0 0% 10%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 250 100% 99%;
 
     --border: 250 20% 88%;
     --input: 250 20% 88%;
@@ -40,13 +40,13 @@
     --radius: 1.25rem;
 
     --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
+    --success-foreground: 250 100% 99%;
 
     --warning: 43 96% 56%;
     --warning-foreground: 0 0% 10%;
 
     --info: 199 89% 48%;
-    --info-foreground: 0 0% 100%;
+    --info-foreground: 250 100% 99%;
 
     --gradient-primary: linear-gradient(135deg, hsl(252 65% 63%), hsl(252 65% 73%));
     --gradient-accent: linear-gradient(135deg, hsl(43 96% 56%), hsl(43 96% 66%));
@@ -88,7 +88,7 @@
     --accent-foreground: 0 0% 10%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 250 100% 99%;
 
     --border: 120 10% 20%;
     --input: 120 10% 20%;
@@ -101,7 +101,7 @@
     --warning-foreground: 0 0% 10%;
 
     --info: 199 89% 48%;
-    --info-foreground: 0 0% 100%;
+    --info-foreground: 250 100% 99%;
 
     --gradient-primary: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 46%));
     --gradient-accent: linear-gradient(135deg, hsl(43 96% 56%), hsl(43 96% 66%));
@@ -113,7 +113,7 @@
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary-foreground: 250 100% 99%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;

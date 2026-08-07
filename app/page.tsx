@@ -127,7 +127,7 @@ const Home = () => {
 
       {/* Final CTA Section: fills the rest of the viewport and warms from
           transparent into the brand's purple-to-orange as it descends. */}
-      <section className="flex min-h-screen items-center justify-center bg-gradient-to-b from-transparent via-primary/[0.12] to-orange-500/25 px-4 py-20 text-center sm:px-6">
+      <section className="flex min-h-[130vh] items-center justify-center bg-gradient-to-b from-transparent via-primary/[0.12] to-orange-500/25 px-6 py-28 text-center sm:px-10 lg:px-20">
         <div className="container mx-auto">
           <h2 className="mb-4 text-4xl font-bold text-foreground sm:text-5xl">
             Go on, send something
