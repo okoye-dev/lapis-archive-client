@@ -20,7 +20,7 @@ const StatCard = ({ icon: Icon, title, description, className }: StatCardProps) 
         // min-h + justify-between makes the card read as a square-ish tile:
         // the padding stays tight while the icon and the text push apart to
         // fill the height, instead of the box collapsing to a wide strip.
-        "group relative flex min-h-[13.5rem] flex-col justify-between overflow-hidden rounded-[2rem] border border-primary/20 bg-primary/[0.17] p-6 backdrop-blur-sm transition-[background-color,border-color] duration-500 ease-spring hover:border-primary/40 hover:bg-primary/[0.24] sm:p-7",
+        "group relative flex flex-col justify-between gap-6 overflow-hidden rounded-[2rem] border border-primary/20 bg-primary/[0.17] p-4 backdrop-blur-sm transition-[background-color,border-color] duration-500 ease-spring hover:border-primary/40 hover:bg-primary/[0.24] sm:min-h-[13.5rem] sm:p-7",
         className,
       )}
     >
@@ -40,10 +40,6 @@ const StatCard = ({ icon: Icon, title, description, className }: StatCardProps) 
           // a soft haze rather than a circle with a blurred outline.
           background:
             "radial-gradient(circle, hsl(24 90% 58% / 0.18) 0%, hsl(24 90% 58% / 0.13) 20%, hsl(24 90% 58% / 0.075) 42%, hsl(24 90% 58% / 0.03) 66%, hsl(24 90% 58% / 0.01) 82%, transparent 94%)",
-          // Inline, not duration-[...]: Tailwind's transition-[...] utility
-          // bundles its own 150ms in the same declaration and a
-          // same-specificity duration class isn't guaranteed to beat it.
-          // Inline always wins. (Same trap documented in HeroBlobs.)
           transition:
             "transform 1400ms cubic-bezier(0.65, 0, 0.35, 1), opacity 1100ms cubic-bezier(0.65, 0, 0.35, 1)",
         }}

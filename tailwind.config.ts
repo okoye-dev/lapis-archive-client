@@ -137,6 +137,15 @@ const config = {
           "0%": { opacity: "0", transform: "scale(0.94)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
+        "word-in": {
+          "0%": { opacity: "0", transform: "translateY(-38px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "word-out": {
+          "0%": { opacity: "1", transform: "translateY(0)" },
+          "85%": { opacity: "0" },
+          "100%": { opacity: "0", transform: "translateY(48px)" },
+        },
         // Counterpart to rise-in: the outgoing slide drifts up and fades
         // instead of vanishing the instant the next one is requested.
         "fade-out": {
@@ -152,6 +161,8 @@ const config = {
         "rise-in": "rise-in 1.5s cubic-bezier(0.22, 1, 0.36, 1) both",
         "pop-in": "pop-in 1.2s cubic-bezier(0.22, 1, 0.36, 1) both",
         "fade-out": "fade-out 0.7s cubic-bezier(0.4, 0, 1, 1) both",
+        "word-in": "word-in 0.9s cubic-bezier(0.33, 0, 0.2, 1) both",
+        "word-out": "word-out 0.6s cubic-bezier(0.33, 0, 0.2, 1) both",
       },
     },
   },

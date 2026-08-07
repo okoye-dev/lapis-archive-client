@@ -9,6 +9,23 @@ import { cn } from "@/lib/utils";
 import Logo from "./Logo";
 import { Button } from "./ui/button";
 
+// Each menu item lands 100ms after the one above it. Transitions rather
+// than keyframes because the panel is always mounted: a CSS animation would
+// only replay if the element remounted, and there is nothing to key off.
+const ITEM_STAGGER_MS = 100;
+
+const itemMotion = (open: boolean) =>
+  cn(
+    "transition-[opacity,transform,background-color,color] duration-300 ease-out",
+    open ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0",
+  );
+
+// Stagger only on the way in. Closing runs them out together, so the panel
+// doesn't linger while the last item finishes leaving.
+const itemDelay = (open: boolean, index: number) => ({
+  transitionDelay: open ? `${index * ITEM_STAGGER_MS}ms` : "0ms",
+});
+
 const navLinks = [
   { href: "/dashboard", label: "Upload" },
   { href: "/signin", label: "Sign In" },
@@ -67,21 +84,27 @@ const Navbar = () => {
               hard-edged shapes to a rectangle inside overflow-hidden. */}
           <span
             aria-hidden
-            // Centre sits ~40px BELOW the pill and near its left end, not on
-            // the corner itself. On a 176x43 strip a corner origin sweeps
-            // almost horizontally, which is why it read as a left-to-right
-            // wipe; starting under the bottom edge means the circle crests
-            // into view from below and rises.
-            className="pointer-events-none absolute -bottom-[16.5rem] -left-48 h-[28rem] w-[28rem] scale-0 rounded-full opacity-0 group-hover:scale-100 group-hover:opacity-100"
+            // The circle grows from its own centre, so that centre decides
+            // which part of the pill it reaches first. The pill measures
+            // ~243x44 with a horizontal midpoint around 118px; the centre
+            // sits at x=104, just left of it, so the glow rises from below
+            // with a gentle lean toward the left end. Dropping it to
+            // 88px below the bottom edge (from 64px) lengthens the vertical
+            // run, which is what makes the motion read as coming from below.
+            className="pointer-events-none absolute -bottom-[19.5rem] -left-[7.5rem] h-[28rem] w-[28rem] scale-0 rounded-full opacity-0 group-hover:scale-100 group-hover:opacity-100"
             style={{
+              // Tighter stops than before: the colour holds most of its
+              // strength out to ~62% of the radius and only then falls
+              // away, so the glow reads as a defined shape rather than a
+              // diffuse haze. Alphas are up across the board too.
               background:
-                "radial-gradient(circle, hsl(24 90% 58% / 0.24) 0%, hsl(24 90% 58% / 0.2) 42%, hsl(24 90% 58% / 0.12) 66%, hsl(24 90% 58% / 0.05) 84%, transparent 96%)",
+                "radial-gradient(circle, hsl(24 90% 58% / 0.42) 0%, hsl(24 90% 58% / 0.4) 38%, hsl(24 90% 58% / 0.32) 62%, hsl(24 90% 58% / 0.16) 80%, hsl(24 90% 58% / 0.04) 91%, transparent 100%)",
               // Opacity lands almost immediately while the scale takes its
               // time. Fading both over the same 700ms meant the circle was
               // still invisible while it was small, so the only thing you
               // ever saw was a large shape fading in left-to-right.
               transition:
-                "transform 700ms cubic-bezier(0.22, 1, 0.36, 1), opacity 140ms linear",
+                "transform 1300ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms linear",
             }}
           />
           <span className="relative">
@@ -193,21 +216,29 @@ const Navbar = () => {
             >
               <nav className="flex flex-col gap-1">
                 <div className="grid grid-cols-2 gap-2">
-                  {navLinks.map((link) => (
+                  {navLinks.map((link, index) => (
                     <Link
                       key={link.href}
                       href={link.href}
                       onClick={closeNow}
                       tabIndex={mobileOpen ? undefined : -1}
-                      className="flex items-center justify-center rounded-full bg-primary/[0.07] px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-500 hover:bg-primary/20 hover:text-[hsl(252,55%,45%)]"
+                      className={cn(
+                        "flex items-center justify-center rounded-full bg-primary/[0.07] px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-primary/20 hover:text-[hsl(252,55%,45%)]",
+                        itemMotion(mobileOpen),
+                      )}
+                      style={itemDelay(mobileOpen, index)}
                     >
                       {link.label}
                     </Link>
                   ))}
                 </div>
                 <Button
-                  className="mt-2 w-full rounded-full"
+                  className={cn(
+                    "mt-2 w-full rounded-full",
+                    itemMotion(mobileOpen),
+                  )}
                   tabIndex={mobileOpen ? undefined : -1}
+                  style={itemDelay(mobileOpen, navLinks.length)}
                   onClick={() => goTo("/signup")}
                 >
                   Sign Up

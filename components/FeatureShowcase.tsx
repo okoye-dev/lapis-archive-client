@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 
 import PlaceholderImage from "@/components/PlaceholderImage";
+import { useInView } from "@/hooks/useInView";
 import { cn } from "@/lib/utils";
 
 const SLIDE_DURATION_MS = 11000;
@@ -52,25 +53,21 @@ interface SlideViewProps {
   slide: Slide;
   onCta: () => void;
   active: boolean;
-  /** False during the reset off the clone, when nothing may animate. */
-  animate: boolean;
 }
 
 // One slide in the track. w-full is measured against the track, which is a
 // single panel wide, so every slide is exactly one panel across; shrink-0
 // stops flex from squeezing them all into that one panel's width.
-const SlideView = ({ slide, onCta, active, animate }: SlideViewProps) => (
+const SlideView = ({ slide, onCta, active }: SlideViewProps) => (
   <div
     aria-hidden={!active}
-    className={cn(
-      "grid w-full shrink-0 gap-8 md:grid-cols-2 md:items-center md:gap-16",
-      // Anything off-centre fades as it travels out of view.
-      active ? "opacity-100" : "opacity-0",
-    )}
-    // Killed during the reset: the clone and the real first slide swap which
-    // one is "active" at that moment, and letting those opacities animate
-    // crossfades two identical-looking slides — the flash on loop.
-    style={{ transition: animate ? "opacity 200ms linear" : "none" }}
+    // px here rather than on the container: the track now spans the full
+    // container width so slides can travel to the curve, so each slide is
+    // responsible for insetting its own content.
+    // No opacity fade any more. Fading a departing slide made it vanish in
+    // open space partway through its travel; letting it stay opaque means
+    // the rounded edge is what takes it out of view.
+    className="grid w-full shrink-0 gap-8 px-6 sm:px-14 md:grid-cols-2 md:items-center md:gap-16"
   >
     {/* min-w-0 on both columns: grid items default to min-width:auto, which
         refuses to shrink below their content and lets a long word push the
@@ -117,6 +114,8 @@ const FeatureShowcase = () => {
   const [snapping, setSnapping] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const pendingPrev = useRef(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const inView = useInView(sectionRef);
 
   const activeIndex = position % slides.length;
 
@@ -128,12 +127,14 @@ const FeatureShowcase = () => {
 
   // One timeout per slide instead of a long-lived interval: any change to
   // position (auto or manual) restarts the countdown, so a manual click
-  // never gets an auto-advance firing a moment later.
+  // never gets an auto-advance firing a moment later. Gated on inView as
+  // well, so the carousel doesn't quietly run through its slides while
+  // off-screen and leave you looking at slide 3 when you scroll down.
   useEffect(() => {
-    if (!isPlaying || snapping) return;
+    if (!isPlaying || snapping || !inView) return;
     const id = setTimeout(advance, SLIDE_DURATION_MS);
     return () => clearTimeout(id);
-  }, [isPlaying, position, snapping]);
+  }, [isPlaying, position, snapping, inView]);
 
   // Once the slide onto the clone has finished, cut the transition and move
   // to the real first slide. They render identically, so the swap is
@@ -182,18 +183,29 @@ const FeatureShowcase = () => {
   };
 
   return (
-    <section className="bg-gradient-to-b from-slate-950 via-[#0a0b0d] to-[#0a0b0d] px-6 py-16 text-white sm:px-10 sm:py-24 lg:px-16">
+    <section
+      ref={sectionRef}
+      className="bg-gradient-to-b from-slate-950 via-[#0a0b0d] to-[#0a0b0d] px-6 py-16 text-white sm:px-10 sm:py-24 lg:px-16"
+    >
       <div
         role="region"
         aria-roledescription="carousel"
         aria-label="What Lapis Archive does"
-        className="mx-auto max-w-6xl rounded-[3rem] bg-[#131419] px-6 py-10 sm:rounded-[4rem] sm:px-14 sm:py-12"
+        // overflow-hidden here, not on the track's viewport: it makes the
+        // rounded edge itself the clipping boundary, so a departing slide
+        // travels all the way out to the curve before it vanishes.
+        className="mx-auto max-w-6xl overflow-hidden rounded-[3rem] bg-[#131419] px-6 py-10 sm:rounded-[4rem] sm:px-14 sm:py-12"
       >
         {/* A plain horizontal track. The percentage translate resolves
             against the track's own width, and the track is exactly one
             panel wide (its children overflow it), so -100% advances by
             exactly one slide regardless of how many slides there are. */}
-        <div className="overflow-hidden">
+        {/* Negative margins cancel the container's horizontal padding so the
+            runway reaches the container's edges. Without this the track was
+            clipped at a rectangle inset by that padding, and slides
+            disappeared at an invisible line short of the curve. Each slide
+            puts the padding back on its own content. */}
+        <div className="-mx-6 sm:-mx-14">
           <div
             className="flex"
             style={{
@@ -214,7 +226,6 @@ const FeatureShowcase = () => {
                 slide={slide}
                 onCta={() => router.push("/dashboard")}
                 active={index === position}
-                animate={!snapping}
               />
             ))}
           </div>

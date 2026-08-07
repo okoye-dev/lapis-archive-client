@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, KeyRound, Zap } from "lucide-react";
 
@@ -8,25 +8,67 @@ import { Button } from "@/components/ui/button";
 import PlaceholderImage from "@/components/PlaceholderImage";
 import HeroBlobs from "@/components/HeroBlobs";
 import FeatureShowcase from "@/components/FeatureShowcase";
+import { useInView } from "@/hooks/useInView";
 import CreatorSection from "@/components/CreatorSection";
 import StatCard from "@/components/StatCard";
 
-const heroWords = ["Documents", "Photos", "Contracts", "Design Files", "Backups", "Anything"];
+// All 6-9 letters, but chosen and ordered by rendered width rather than
+// letter count, which is what actually moves the centred heading. Measured
+// at the hero's 72px size: Pictures 242, Backups 260, Anything 271,
+// Mockups 278, Podcasts 278, Receipts 260. Ordering them as a climb and
+// then back down keeps every neighbouring step small, including the wrap
+// from the last back to the first, so no single change is worse than 18px.
+// The previous set ran 210px ("Photos") to 347px ("Documents"), and that
+// 137px swing is what shoved "Share" around.
+const heroWords = ["Pictures", "Backups", "Anything", "Mockups", "Podcasts", "Receipts"];
 
 const Home = () => {
   const router = useRouter();
-  const [activeWordIndex, setActiveWordIndex] = useState(0);
+  // `previous` keeps the outgoing word around long enough to play an exit,
+  // instead of it blinking out the instant the next one arrives.
+  const [word, setWord] = useState<{ index: number; previous: number | null }>({
+    index: 0,
+    previous: null,
+  });
+
+  // The cycling words differ in width, and the heading is centred, so every
+  // swap used to shove "Share" sideways in a single frame. Measuring the new
+  // word and transitioning its holder's width lets the centring resolve over
+  // time instead, so "Share" glides to its new position.
+  const wordRef = useRef<HTMLSpanElement>(null);
+  const [wordWidth, setWordWidth] = useState<number>();
+
+  // Cycling stops once the hero scrolls away: no point burning a timer and
+  // repainting a word nobody can see, and it means scrolling back finds the
+  // sequence where you left it rather than mid-flight.
+  const heroRef = useRef<HTMLElement>(null);
+  const heroInView = useInView(heroRef);
 
   useEffect(() => {
+    if (!heroInView) return;
     const interval = setInterval(() => {
-      setActiveWordIndex((prev) => (prev + 1) % heroWords.length);
-    }, 2000);
+      // Both fields move in one update. Tracking the outgoing word in a
+      // separate state would land a render later, showing one frame where
+      // the old word is already gone and nothing is animating out.
+      setWord((w) => ({
+        index: (w.index + 1) % heroWords.length,
+        previous: w.index,
+      }));
+    }, 3400);
     return () => clearInterval(interval);
-  }, []);
+  }, [heroInView]);
+
+  // Deliberately useEffect, not useLayoutEffect: this renders on the server
+  // too, where useLayoutEffect warns. Running after paint is also what we
+  // want — the holder keeps the previous width for one frame, which is the
+  // starting point the width transition animates away from.
+  useEffect(() => {
+    if (wordRef.current) setWordWidth(wordRef.current.offsetWidth);
+  }, [word.index]);
 
   return (
     <div className="min-h-screen">
-      <section className="px-4 pt-2 sm:px-6 sm:pt-4">
+      <section ref={heroRef} className="px-4 pt-2 sm:px-6 sm:pt-4">
         <div className="container relative mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-[2.5rem] bg-slate-950 px-6 py-20 text-center sm:rounded-[3rem] sm:py-28">
           <HeroBlobs />
 
@@ -38,11 +80,37 @@ const Home = () => {
               <span className="text-4xl font-bold tracking-tighter text-white sm:text-6xl md:text-7xl">
                 Share
               </span>
+              {/* Holder carries the measured width so the heading recentres
+                  gradually. Overflow stays visible on purpose: the word is
+                  briefly wider than the holder mid-transition, and clipping
+                  it would also cut off its slide-in. */}
               <span
-                key={heroWords[activeWordIndex]}
-                className="text-4xl font-bold tracking-tighter text-primary transition-opacity duration-500 sm:text-6xl md:text-7xl"
+                className="relative inline-block text-left transition-[width] duration-700 ease-out"
+                style={{ width: wordWidth }}
               >
-                {heroWords[activeWordIndex]}
+                {/* The outgoing word sits out of flow so it can overlap the
+                    incoming one for a crossfade without contributing to the
+                    holder's measured width. */}
+                {word.previous !== null && (
+                  <span
+                    key={`out-${word.previous}-${word.index}`}
+                    aria-hidden
+                    className="animate-word-out absolute left-0 top-0 whitespace-nowrap text-4xl font-bold tracking-tighter text-primary sm:text-6xl md:text-7xl"
+                  >
+                    {heroWords[word.previous]}
+                  </span>
+                )}
+                {/* key remounts the span on every word, which replays the
+                    animation. No duration-* utility here: tailwindcss-animate
+                    makes those set animation-duration too, which would
+                    override the timing baked into animate-word-in. */}
+                <span
+                  ref={wordRef}
+                  key={heroWords[word.index]}
+                  className="animate-word-in inline-block whitespace-nowrap text-4xl font-bold tracking-tighter text-primary sm:text-6xl md:text-7xl"
+                >
+                  {heroWords[word.index]}
+                </span>
               </span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-base text-slate-300 sm:text-lg">
