@@ -16,15 +16,13 @@ const PlaceholderImage = ({
   return (
     <div
       className={cn(
-        "flex w-full items-center justify-center rounded-xl border border-dashed border-border bg-gradient-to-br p-6 text-center",
+        "flex w-full items-center justify-center rounded-[2rem] border border-dashed border-border bg-gradient-to-br p-6 text-center text-foreground/70",
         gradient,
         aspect,
         className,
       )}
     >
-      <span className="max-w-xs text-sm font-medium text-foreground/70">
-        {label}
-      </span>
+      <span className="max-w-xs text-sm font-medium">{label}</span>
     </div>
   );
 };

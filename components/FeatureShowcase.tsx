@@ -1,0 +1,177 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
+
+import PlaceholderImage from "@/components/PlaceholderImage";
+import { cn } from "@/lib/utils";
+
+const SLIDE_DURATION_MS = 6000;
+
+interface Slide {
+  id: string;
+  heading: string;
+  body: string;
+  cta: string;
+  imageLabel: string;
+}
+
+const slides: Slide[] = [
+  {
+    id: "upload",
+    heading: "Drop a file in, get a link out",
+    body: "Drag a file in and it's on its way. A moment later you've got a link you can hand to anyone. That's it. That's the feature.",
+    cta: "Toss a file in",
+    imageLabel:
+      "Illustration idea: dark scene, a hand dropping a single file card onto a rising stack, purple to orange glow underneath, Coinbase-illustration style with bold flat shapes",
+  },
+  {
+    id: "access-code",
+    heading: "A code only your recipient has",
+    body: "Every share comes with a little code. The link without the code opens nothing. Send both by text, chat, email, or a very reliable pigeon.",
+    cta: "Share something",
+    imageLabel:
+      "Illustration idea: dark scene, oversized 6-character access code on a card, a keyhole glowing purple, small file icons waiting behind it, bold flat shapes",
+  },
+  {
+    id: "open-source",
+    heading: "Nothing hidden, nothing locked in",
+    body: "The whole thing is open source. Peek inside, run your own copy, or just enjoy knowing there's no mystery box between you and your files.",
+    cta: "Poke around",
+    imageLabel:
+      "Illustration idea: dark scene, an open box with code brackets floating out, purple and orange accent lines, friendly and geometric, no text-heavy UI",
+  },
+];
+
+const FeatureShowcase = () => {
+  const router = useRouter();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    timerRef.current = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % slides.length);
+    }, SLIDE_DURATION_MS);
+    return clearTimer;
+  }, [isPlaying, clearTimer]);
+
+  // Manual navigation restarts the autoplay countdown so the next
+  // auto-advance doesn't fire a moment after the user clicked.
+  const goTo = (index: number) => {
+    clearTimer();
+    setActiveIndex((index + slides.length) % slides.length);
+    if (isPlaying) {
+      timerRef.current = setInterval(() => {
+        setActiveIndex((prev) => (prev + 1) % slides.length);
+      }, SLIDE_DURATION_MS);
+    }
+  };
+
+  const slide = slides[activeIndex];
+
+  return (
+    <section className="bg-[#0a0b0d] py-16 text-white sm:py-24">
+      <div
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="What Lapis Archive does"
+        className="container mx-auto px-4"
+      >
+        <div className="grid gap-10 md:grid-cols-2 md:items-center md:gap-16">
+          <div key={slide.id} className="flex flex-col items-start">
+            <h2 className="mb-6 text-4xl font-bold leading-[1.05] sm:text-5xl lg:text-6xl">
+              {slide.heading}
+            </h2>
+            <p className="mb-8 max-w-md text-base text-zinc-400 sm:text-lg">
+              {slide.body}
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push("/dashboard")}
+              className="rounded-full bg-white px-8 py-4 text-base font-semibold text-[#0a0b0d] transition-colors hover:bg-zinc-200"
+            >
+              {slide.cta}
+            </button>
+          </div>
+
+          <PlaceholderImage
+            label={slide.imageLabel}
+            gradient="from-primary/30 via-[#15161a] to-[#0a0b0d]"
+            aspect="aspect-square"
+            className="rounded-[3rem] border-zinc-800 text-zinc-400"
+          />
+        </div>
+
+        <div className="mt-12 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              {slides.map((s, index) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  aria-label={`Go to slide ${index + 1}: ${s.heading}`}
+                  aria-current={index === activeIndex}
+                  onClick={() => goTo(index)}
+                  className={cn(
+                    "h-2 rounded-full transition-all duration-300",
+                    index === activeIndex
+                      ? "w-8 bg-white"
+                      : "w-2 bg-zinc-600 hover:bg-zinc-400",
+                  )}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsPlaying((prev) => !prev)}
+              aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white"
+            >
+              {isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => goTo(activeIndex - 1)}
+              aria-label="Previous slide"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo(activeIndex + 1)}
+              aria-label="Next slide"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white"
+            >
+              <ArrowRight className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <p className="mx-auto mt-10 max-w-2xl px-4 text-center text-sm text-zinc-500">
+        The pictures are placeholders while I draw better ones. The sharing
+        itself works for real.
+      </p>
+    </section>
+  );
+};
+
+export default FeatureShowcase;
