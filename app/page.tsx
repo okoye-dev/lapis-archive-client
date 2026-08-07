@@ -68,7 +68,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      <section ref={heroRef} className="px-4 pt-2 sm:px-6 sm:pt-4">
+      <section ref={heroRef} className="px-4 pb-8 pt-2 sm:px-6 sm:pb-12 sm:pt-4">
         <div className="container relative mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-[2.5rem] bg-slate-950 px-6 py-20 text-center sm:rounded-[3rem] sm:py-28">
           <HeroBlobs />
 
@@ -141,7 +141,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-slate-950 py-20 text-white sm:py-24">
+      <section className="bg-slate-950 py-28 text-white sm:py-40">
         <div className="container mx-auto grid gap-10 px-6 sm:px-8 md:grid-cols-2 md:items-stretch md:gap-14 lg:px-12">
           <div className="flex flex-col">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">

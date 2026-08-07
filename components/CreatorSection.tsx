@@ -4,7 +4,7 @@ import { CONTACT_EMAIL, GITHUB_URL, PORTFOLIO_URL } from "@/lib/links";
 
 const CreatorSection = () => {
   return (
-    <section className="container mx-auto px-8 py-16 sm:px-16 sm:py-24 lg:px-28 xl:px-36">
+    <section className="container mx-auto px-8 py-24 sm:px-16 sm:py-36 lg:px-28 xl:px-36">
       <div className="grid gap-10 md:grid-cols-2 md:items-center md:gap-16">
         <div className="rounded-[2.5rem] bg-muted p-8 sm:rounded-[3rem] sm:p-14">
           <PlaceholderImage

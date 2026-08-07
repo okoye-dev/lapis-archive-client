@@ -73,7 +73,7 @@ const SlideView = ({ slide, onCta, active }: SlideViewProps) => (
         refuses to shrink below their content and lets a long word push the
         column — and the artwork beside it — past the slide's right edge. */}
     <div className="flex min-w-0 flex-col items-start">
-      <h2 className="mb-5 text-4xl font-bold leading-[1.05] sm:text-5xl">
+      <h2 className="mb-5 text-4xl font-bold leading-[1.05] text-[hsl(28,90%,88%)] sm:text-5xl">
         {slide.heading}
       </h2>
       <p className="mb-7 max-w-md text-base text-zinc-400 sm:text-lg">
@@ -185,7 +185,7 @@ const FeatureShowcase = () => {
   return (
     <section
       ref={sectionRef}
-      className="bg-gradient-to-b from-slate-950 via-[#0a0b0d] to-[#0a0b0d] px-6 py-16 text-white sm:px-10 sm:py-24 lg:px-16"
+      className="bg-gradient-to-b from-slate-950 via-[#0a0b0d] to-[#0a0b0d] px-6 py-24 text-white sm:px-10 sm:py-36 lg:px-16"
     >
       <div
         role="region"
@@ -254,7 +254,7 @@ const FeatureShowcase = () => {
               type="button"
               onClick={() => setIsPlaying((prev) => !prev)}
               aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-[color,border-color,transform] duration-500 ease-spring hover:scale-110 hover:border-zinc-500 hover:text-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-[color,border-color] duration-500 hover:border-zinc-500 hover:text-white"
             >
               {isPlaying ? (
                 <Pause className="h-4 w-4" />
