@@ -96,8 +96,9 @@ const SharePage = () => {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-md p-6 sm:p-8">
         <div className="mb-6 text-center">
-          <h1 className="mb-2 text-2xl font-bold text-foreground">
-            📁 Lapis Archive
+          <h1 className="mb-2 font-logo text-2xl font-bold tracking-tight">
+            <span className="text-brand">Lapis</span>
+            <span className="text-primary">Archive</span>
           </h1>
           <p className="text-sm text-muted-foreground">
             {unlocked

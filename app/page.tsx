@@ -71,73 +71,58 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="container mx-auto grid gap-10 px-4 py-16 sm:py-20 md:grid-cols-[1.4fr_1fr] md:items-center md:py-28">
-          <div>
-            <h1 className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-              <span className="text-5xl font-bold tracking-tighter text-foreground sm:text-6xl md:text-7xl">
-                Share
-              </span>
-              <span
-                key={heroWords[activeWordIndex]}
-                className="text-5xl font-bold tracking-tighter text-primary transition-opacity duration-500 sm:text-6xl md:text-7xl"
-              >
-                {heroWords[activeWordIndex]}
-              </span>
-            </h1>
-            <div className="mt-2 space-y-1">
-              {heroWords.map((word, index) => (
-                <div
-                  key={word}
-                  className={cn(
-                    "text-lg font-medium transition-colors duration-500 sm:text-xl",
-                    index === activeWordIndex
-                      ? "text-foreground"
-                      : "text-muted-foreground/40",
-                  )}
-                >
-                  {word}
-                </div>
-              ))}
-            </div>
+      <section className="px-4 pt-2 sm:px-6 sm:pt-4">
+        <div className="container mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-2xl bg-slate-950 px-6 py-20 text-center sm:rounded-3xl sm:py-28">
+          <p className="mb-4 text-sm font-medium text-slate-400 sm:text-base">
+            Open source. No account needed to upload.
+          </p>
+          <h1 className="mx-auto flex max-w-3xl flex-wrap items-baseline justify-center gap-x-3 gap-y-2">
+            <span className="text-4xl font-bold tracking-tighter text-white sm:text-6xl md:text-7xl">
+              Share
+            </span>
+            <span
+              key={heroWords[activeWordIndex]}
+              className="text-4xl font-bold tracking-tighter text-primary transition-opacity duration-500 sm:text-6xl md:text-7xl"
+            >
+              {heroWords[activeWordIndex]}
+            </span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-xl text-base text-slate-300 sm:text-lg">
+            Upload a file, get a public link and an access code, send both to
+            whoever needs it — we only ask for an email when you're ready to
+            share.
+          </p>
+          <div className="mt-10 flex justify-center">
+            <Button
+              size="lg"
+              className="rounded-full text-lg sm:px-10 sm:py-7 sm:text-xl"
+              onClick={() => router.push("/dashboard")}
+            >
+              Upload something
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </div>
-
-          <div className="space-y-6">
-            <p className="text-base text-muted-foreground sm:text-lg">
-              Upload a file, get a public link and an access code, send both
-              to whoever needs it. No account required to upload — we only
-              ask for an email when you're ready to share.
-            </p>
-            <div className="flex flex-col items-start gap-3">
-              <Button
-                size="lg"
-                className="w-full text-lg sm:w-auto sm:px-10 sm:py-7 sm:text-xl"
-                onClick={() => router.push("/dashboard")}
-              >
-                Upload something
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <button
-                type="button"
-                onClick={() => router.push("/signin")}
-                className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-              >
-                Already have an account? Sign in
-              </button>
-            </div>
-          </div>
+        </div>
+        <div className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={() => router.push("/signin")}
+            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+          >
+            Already have an account? Sign in
+          </button>
         </div>
       </section>
 
       {/* Platform Statement Section */}
-      <section className="bg-zinc-950 py-16 text-white sm:py-24">
+      <section className="bg-slate-950 py-16 text-white sm:py-24">
         <div className="container mx-auto grid gap-10 px-4 md:grid-cols-2 md:items-center md:gap-16">
           <div>
             <h2 className="mb-6 text-4xl font-bold sm:text-5xl">
               Built for one job: get a file from you to someone else, safely
             </h2>
             {/* Personalize this paragraph with your own reason for building Lapis Archive */}
-            <p className="text-base text-zinc-400 sm:text-lg">
+            <p className="text-base text-slate-400 sm:text-lg">
               We built Lapis Archive because sharing a single file shouldn't
               require signing up for another account, installing another
               app, or trusting another company with a permanent copy.
@@ -146,9 +131,9 @@ const Home = () => {
           </div>
           <PlaceholderImage
             label="Graphic: product mark or abstract visual matching the brand, dark background"
-            gradient="from-primary/40 via-primary/10 to-zinc-950"
+            gradient="from-primary/40 via-primary/10 to-slate-950"
             aspect="aspect-square"
-            className="border-zinc-800"
+            className="border-slate-800"
           />
         </div>
       </section>

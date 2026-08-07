@@ -18,6 +18,7 @@ import { useFiles } from "@/hooks/useFiles";
 import { useToast } from "@/hooks/useToast";
 import { useFormatDate as formatDate } from "@/hooks/useFormatDate";
 import { useShareStore } from "@/store/shareStore";
+import { cn, softSurface } from "@/lib/utils";
 import type { FileData } from "@/api/files";
 import type { LinkData } from "@/types/types";
 import { DownloadCloud, Share2, UploadCloud } from "lucide-react";
@@ -131,7 +132,7 @@ const Dashboard = () => {
               </div>
             )}
 
-            <div className="rounded-lg border-2 border-dashed border-border p-6 text-center sm:p-12">
+            <div className={cn(softSurface.primary, "border-dashed p-6 text-center sm:p-12")}>
               <UploadCloud className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
               <p className="mb-1 text-base font-medium text-foreground sm:text-lg">
                 Drop files here or click to upload
@@ -172,7 +173,7 @@ const Dashboard = () => {
                 </h3>
                 <div className="space-y-2">
                   {files.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between gap-2 rounded-xl border border-border bg-muted/30 p-3">
+                    <div key={index} className={cn(softSurface.primary, "flex items-center justify-between gap-2 p-3")}>
                       <div className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-medium text-foreground">{file.name}</span>
                         <div className="truncate text-xs text-muted-foreground">
@@ -219,7 +220,7 @@ const Dashboard = () => {
                 {shares.map((share) => (
                   <div
                     key={share.slug}
-                    className="rounded-xl border border-border bg-muted/30 p-3"
+                    className={cn(softSurface.primary, "p-3")}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">

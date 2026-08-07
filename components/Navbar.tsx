@@ -57,15 +57,15 @@ const Navbar: FC<IProps> = ({ className }: IProps) => {
     <>
       <header
         className={cn(
-          "fixed left-0 top-0 z-10 w-full border-b border-border bg-card shadow-sm",
+          "fixed left-0 top-0 z-10 w-full",
           className,
         )}
       >
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6 lg:px-10">
           <div className="min-w-0">
             <Link href="/" className="block w-fit">
-              <h1 className="truncate text-lg font-bold text-primary transition-opacity hover:opacity-80 sm:text-2xl">
-                📁 Lapis Archive
+              <h1 className="truncate font-logo text-lg font-bold tracking-tight text-brand transition-opacity hover:opacity-80 sm:text-2xl">
+                Lapis<span className="text-primary">Archive</span>
               </h1>
             </Link>
             <p className="hidden text-sm text-muted-foreground sm:block">

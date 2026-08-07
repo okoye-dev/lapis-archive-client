@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import ClientLayout from "@/components/ClientLayout";
 
 // Apple's actual San Francisco font isn't licensed for use outside Apple
@@ -11,6 +11,14 @@ import ClientLayout from "@/components/ClientLayout";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+});
+
+// A distinct display face for the wordmark only — gives the logo its own
+// character instead of just being body text set bigger.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-logo",
 });
 
 export const metadata: Metadata = {
@@ -36,7 +44,7 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <ClientLayout>{children}</ClientLayout>
     </html>
   );
