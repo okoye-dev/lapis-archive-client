@@ -1,146 +1,81 @@
 "use client";
-import type { FC } from "react";
+
+import { useState } from "react";
 import Link from "next/link";
-// import logo from "@/app/assets/logo.jpg";
-// import menu from "@/app/assets/menu.svg";
-// import profilePic from "@/app/assets/profile-pic.svg";
-// import arrowDown from "@/app/assets/arrow-down.svg";
-// import arrowUp from "@/app/assets/arrow-up.svg";
-// import Image from "next/image";
-// import Link from "next/link";
-// import DisconnectModal from "./DisconnectModal";
-// import SideNav from "@/components/SideNav";
-import { cn } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { Menu, X } from "lucide-react";
+
+import Logo from "./Logo";
 import { Button } from "./ui/button";
-import { LogOut, Settings } from "lucide-react";
-import { useToast } from "@/hooks/useToast";
 
-interface IProps {
-  className?: string;
-}
+const navLinks = [
+  { href: "/dashboard", label: "Upload" },
+  { href: "/signin", label: "Sign In" },
+];
 
-const Navbar: FC<IProps> = ({ className }: IProps) => {
-  // const [disconnectModal, setDisconnectModal] = useState(false);
-
-  // const toggleDisconnectModal = () => setDisconnectModal(!disconnectModal);
-
-  // const [navOpen, setNavOpen] = useState(false);
-
-  // const toggleNav = () => {
-  //   setNavOpen(!navOpen);
-  // };
+const Navbar = () => {
   const router = useRouter();
-  const { toast } = useToast();
-  const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isAdminPage = pathname === "/admin";
-  const isSigninPage = pathname === "/signin";
-  const isSignupPage = pathname === "/signup";
-  const isSharePage = pathname.startsWith("/share");
-
-  const handleLogout = () => {
-    localStorage.clear();
-    toast({
-      title: "Logged out",
-      description: "You've been successfully logged out.",
-    });
-    router.push("/");
+  const goTo = (href: string) => {
+    setMobileOpen(false);
+    router.push(href);
   };
 
-  // Hide navbar on signin/signup/share pages
-  if (isSigninPage || isSignupPage || isSharePage) {
-    return null;
-  }
-
   return (
-    <>
-      <header
-        className={cn(
-          "fixed left-0 top-0 z-10 w-full",
-          className,
-        )}
-      >
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6 lg:px-10">
-          <div className="min-w-0">
-            <Link href="/" className="block w-fit">
-              <h1 className="truncate font-logo text-lg font-bold tracking-tight text-brand transition-opacity hover:opacity-80 sm:text-2xl">
-                Lapis<span className="text-primary">Archive</span>
-              </h1>
-            </Link>
-            <p className="hidden text-sm text-muted-foreground sm:block">
-              {isAdminPage
-                ? "Dashboard & Management"
-                : "Open Source File Sharing & Collaboration Platform"}
-            </p>
-          </div>
-          {isAdminPage && (
-            <div className="flex shrink-0 gap-2">
-              <Button variant="outline" size="sm">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Button>
-              <Button variant="destructive" size="sm" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
-            </div>
-          )}
-        </div>
-      </header>
-      {/* <nav className="sticky top-0 z-50 mb-8 w-full bg-background px-6 py-4 md:pt-0">
-        <div className="flex w-full items-center justify-between md:hidden">
-          <Link href="/">
-            <Image
-              src={logo}
-              alt="logo"
-              width={100}
-              height={100}
-              className="h-10 w-10"
-            />
-          </Link>
-          <span className="flex items-center justify-center">
-            <Image src={profilePic} alt="profile" width={48} height={48} />
-            <span
-              onClick={toggleDisconnectModal}
-              className="relative flex h-6 w-6 cursor-pointer items-center justify-center gap-2"
+    <header className="fixed left-0 top-0 z-20 w-full">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
+        <Logo />
+
+        <nav className="hidden items-center gap-1 rounded-full bg-background/95 p-1.5 shadow-sm backdrop-blur-md md:flex">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              <Image
-                src={arrowDown}
-                alt="down"
-                width={10}
-                height={10}
-                className={`translate-x-2 transition-opacity duration-300 ${disconnectModal ? "opacity-100" : "opacity-0"}`}
-              />
-              <Image
-                src={arrowUp}
-                alt="up"
-                width={10}
-                height={10}
-                className={`-translate-x-[9px] transition-opacity duration-300 ${disconnectModal ? "opacity-0" : "opacity-100"}`}
-              />
-              <DisconnectModal
-                isOpen={disconnectModal}
-                toggler={toggleDisconnectModal}
-              />
-            </span>
-            <Image
-              onClick={toggleNav}
-              src={menu}
-              alt="menu"
-              width={30}
-              height={30}
-            />
-          </span>
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="hidden md:block">
+          <Button className="rounded-full shadow-sm" onClick={() => goTo("/signup")}>
+            Sign Up
+          </Button>
         </div>
 
-        <span className="absolute left-0 top-16 my-4 flex h-[2px] w-full bg-border md:hidden" />
+        <button
+          type="button"
+          onClick={() => setMobileOpen((open) => !open)}
+          className="rounded-full bg-background/95 p-2.5 text-foreground shadow-sm backdrop-blur-md md:hidden"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+        >
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+      </div>
 
-        <section className="relative flex">
-          <SideNav navOpen={navOpen} toggleNav={toggleNav} />
-        </section>
-      </nav>*/}
-    </>
+      {mobileOpen && (
+        <div className="mx-4 mt-2 rounded-2xl border border-border/60 bg-background p-4 shadow-lg sm:mx-6 md:hidden">
+          <nav className="flex flex-col gap-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Button className="mt-2 w-full rounded-full" onClick={() => goTo("/signup")}>
+              Sign Up
+            </Button>
+          </nav>
+        </div>
+      )}
+    </header>
   );
 };
 

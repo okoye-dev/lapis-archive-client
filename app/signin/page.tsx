@@ -50,13 +50,9 @@ const SignIn = () => {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-md p-6 sm:p-8">
         <div className="mb-8 text-center">
-          <h1 className="mb-2 font-logo text-3xl font-bold tracking-tight">
-            <span className="text-brand">Lapis</span>
-            <span className="text-primary">Archive</span>
-          </h1>
-          <h2 className="mb-2 text-xl font-semibold text-foreground">
+          <h1 className="mb-2 text-xl font-semibold text-foreground">
             Sign In
-          </h2>
+          </h1>
           <p className="text-sm text-muted-foreground">
             Enter your credentials to access your account
           </p>

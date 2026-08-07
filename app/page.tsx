@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import PlaceholderImage from "@/components/PlaceholderImage";
+import HeroBlobs from "@/components/HeroBlobs";
 import { cn } from "@/lib/utils";
 
 const heroWords = ["Documents", "Photos", "Contracts", "Design Files", "Backups", "Anything"];
@@ -59,6 +61,23 @@ const Home = () => {
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [activeTab, setActiveTab] = useState(tabs[0].id);
 
+  // Tracked on the hero panel itself (not window/document), so the blobs
+  // only ever react while the cursor is actually over the hero — nothing
+  // to pause when scrolling elsewhere, because nothing is listening there.
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [blobOffset, setBlobOffset] = useState({ x: 0, y: 0 });
+
+  const handleHeroMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    const rect = heroRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setBlobOffset({
+      x: e.clientX - (rect.left + rect.width / 2),
+      y: e.clientY - (rect.top + rect.height / 2),
+    });
+  };
+
+  const handleHeroMouseLeave = () => setBlobOffset({ x: 0, y: 0 });
+
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveWordIndex((prev) => (prev + 1) % heroWords.length);
@@ -72,20 +91,13 @@ const Home = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="px-4 pt-2 sm:px-6 sm:pt-4">
-        <div className="group container relative mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-2xl bg-slate-950 px-6 py-20 text-center sm:rounded-3xl sm:py-28">
-          {/* Decorative blurred blobs — purely visual, clipped to the panel's rounded corners by the parent's overflow-hidden */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl transition-transform duration-700 ease-out group-hover:scale-125 group-hover:-translate-x-4"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-32 -right-16 h-96 w-96 rounded-full bg-orange-500/20 blur-3xl transition-transform duration-700 ease-out group-hover:scale-125 group-hover:translate-x-4"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute right-1/4 top-1/4 h-56 w-56 rounded-full bg-primary/20 blur-3xl transition-transform duration-700 ease-out group-hover:scale-110"
-          />
+        <div
+          ref={heroRef}
+          onMouseMove={handleHeroMouseMove}
+          onMouseLeave={handleHeroMouseLeave}
+          className="container relative mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-2xl bg-slate-950 px-6 py-20 text-center sm:rounded-3xl sm:py-28"
+        >
+          <HeroBlobs offset={blobOffset} />
 
           <div className="relative z-10 flex flex-col items-center">
             <p className="mb-4 text-sm font-medium text-slate-400 sm:text-base">
