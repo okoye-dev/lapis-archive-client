@@ -114,7 +114,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen">
-      <section className="container mx-auto px-4 py-10 sm:py-16">
+      <section className="py-10 sm:py-16">
         <div className="mx-auto max-w-2xl">
           <div className="mb-6 sm:mb-8">
             <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
@@ -209,7 +209,7 @@ const Dashboard = () => {
       </section>
 
       {hasMounted && shares.length > 0 && (
-        <section className="container mx-auto px-4 py-10 sm:py-16">
+        <section className="py-10 sm:py-16">
           <div className="mx-auto max-w-2xl">
             <h2 className="mb-6 text-center text-2xl font-bold text-foreground sm:mb-8 sm:text-3xl">
               Shared Links

@@ -8,7 +8,7 @@ interface BlobConfig {
   size: string;
   position: string;
   background: string;
-  duration: string;
+  durationMs: number;
   growth: number;
 }
 
@@ -25,7 +25,7 @@ const blobConfigs: BlobConfig[] = [
     position: "-left-40 -top-40",
     background:
       "radial-gradient(circle, hsl(var(--primary) / 0.32) 0%, hsl(var(--primary) / 0.16) 30%, hsl(var(--primary) / 0.05) 55%, transparent 75%)",
-    duration: "duration-[1800ms]",
+    durationMs: 1400,
     growth: 0.3,
   },
   {
@@ -33,7 +33,7 @@ const blobConfigs: BlobConfig[] = [
     position: "-bottom-72 -right-56",
     background:
       "radial-gradient(circle, hsl(24 90% 58% / 0.28) 0%, hsl(24 90% 58% / 0.14) 30%, hsl(24 90% 58% / 0.05) 55%, transparent 75%)",
-    duration: "duration-[2200ms]",
+    durationMs: 1700,
     growth: 0.2,
   },
   {
@@ -41,7 +41,7 @@ const blobConfigs: BlobConfig[] = [
     position: "right-[10%] top-[10%]",
     background:
       "radial-gradient(circle, hsl(var(--primary) / 0.22) 0%, hsl(var(--primary) / 0.1) 35%, transparent 70%)",
-    duration: "duration-[1400ms]",
+    durationMs: 1200,
     growth: 0.4,
   },
 ];
@@ -95,8 +95,16 @@ function Blob({ config, layerRef, active }: BlobProps) {
   return (
     <div
       ref={blobRef}
-      className={cn("absolute rounded-full transition-transform ease-out", config.duration, config.size, config.position)}
-      style={{ background: config.background, transform: `scale(${scale})` }}
+      className={cn("absolute rounded-full", config.size, config.position)}
+      style={{
+        background: config.background,
+        transform: `scale(${scale})`,
+        // Set directly rather than via Tailwind's duration-[...] utility:
+        // transition-transform already bundles its own 150ms duration in
+        // the same declaration, and a same-specificity utility class isn't
+        // guaranteed to win over it — an inline style always does.
+        transition: `transform ${config.durationMs}ms ease-out`,
+      }}
     />
   );
 }
