@@ -80,12 +80,12 @@ const FeatureShowcase = () => {
   const slide = slides[activeIndex];
 
   return (
-    <section className="bg-[#0a0b0d] py-16 text-white sm:py-24">
+    <section className="bg-gradient-to-b from-slate-950 via-[#0a0b0d] to-[#0a0b0d] px-6 py-16 text-white sm:px-10 sm:py-24 lg:px-16">
       <div
         role="region"
         aria-roledescription="carousel"
         aria-label="What Lapis Archive does"
-        className="container mx-auto px-4"
+        className="mx-auto max-w-5xl rounded-[3rem] bg-[#131419] px-6 py-12 sm:rounded-[4rem] sm:px-12 sm:py-16"
       >
         <div className="grid gap-10 md:grid-cols-2 md:items-center md:gap-16">
           <div key={slide.id} className="flex flex-col items-start">

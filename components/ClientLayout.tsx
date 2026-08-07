@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 import { Toaster } from "./ui/toaster";
 
 interface ClientLayoutProps {
@@ -36,6 +37,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
       {isHomePage ? (
         <>
           {children}
+          <Footer />
           <Toaster />
         </>
       ) : (
