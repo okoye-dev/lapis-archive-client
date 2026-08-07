@@ -16,7 +16,7 @@ const navLinks = [
 
 // Long enough that clipping a corner of the menu on the way to it doesn't
 // dismiss it, short enough that a deliberate exit still feels responsive.
-const CLOSE_DELAY_MS = 1000;
+const CLOSE_DELAY_MS = 400;
 
 const Navbar = () => {
   const router = useRouter();
@@ -58,8 +58,35 @@ const Navbar = () => {
   return (
     <header className="fixed left-0 top-0 z-20 w-full animate-nav-drop">
       <div className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-4 sm:px-6 lg:px-10">
-        <div className="flex h-11 w-fit items-center justify-self-start rounded-full border border-orange-500/25 bg-background px-4 transition-colors duration-500 hover:bg-secondary">
-          <Logo />
+        <div className="group relative flex h-11 w-fit items-center justify-self-start overflow-hidden rounded-full border border-orange-500/25 bg-background px-4">
+          {/* Orange circle sprung from the bottom-left corner. Anchored at
+              that corner with a matching transform-origin, so scaling alone
+              carries it across the pill; overflow-hidden on the parent clips
+              it to the pill's shape. Radial gradient rather than a solid
+              disc for the same reason as HeroBlobs — Safari clips blur() and
+              hard-edged shapes to a rectangle inside overflow-hidden. */}
+          <span
+            aria-hidden
+            // Centre sits ~40px BELOW the pill and near its left end, not on
+            // the corner itself. On a 176x43 strip a corner origin sweeps
+            // almost horizontally, which is why it read as a left-to-right
+            // wipe; starting under the bottom edge means the circle crests
+            // into view from below and rises.
+            className="pointer-events-none absolute -bottom-[16.5rem] -left-48 h-[28rem] w-[28rem] scale-0 rounded-full opacity-0 group-hover:scale-100 group-hover:opacity-100"
+            style={{
+              background:
+                "radial-gradient(circle, hsl(24 90% 58% / 0.24) 0%, hsl(24 90% 58% / 0.2) 42%, hsl(24 90% 58% / 0.12) 66%, hsl(24 90% 58% / 0.05) 84%, transparent 96%)",
+              // Opacity lands almost immediately while the scale takes its
+              // time. Fading both over the same 700ms meant the circle was
+              // still invisible while it was small, so the only thing you
+              // ever saw was a large shape fading in left-to-right.
+              transition:
+                "transform 700ms cubic-bezier(0.22, 1, 0.36, 1), opacity 140ms linear",
+            }}
+          />
+          <span className="relative">
+            <Logo />
+          </span>
         </div>
 
         <nav className="hidden h-11 items-center gap-0.5 rounded-full border border-orange-500/25 bg-background px-1 md:flex">
@@ -133,13 +160,37 @@ const Navbar = () => {
           <div
             aria-hidden={!mobileOpen}
             className={cn(
-              "absolute right-0 top-full w-64 pt-2 transition-[opacity,transform] duration-300 ease-out",
+              // origin-top-right so it grows out of the button it belongs to.
+              "absolute right-0 top-full w-64 origin-top-right pt-2",
               mobileOpen
-                ? "translate-y-0 opacity-100"
-                : "pointer-events-none -translate-y-1 opacity-0",
+                ? "scale-100 opacity-100"
+                : "pointer-events-none scale-95 opacity-0",
             )}
+            // The y1 of 1.12 carries the scale ~2% past its target before it
+            // settles — just enough to register as a bounce without wobbling.
+            style={{
+              transition:
+                "opacity 200ms ease-out, transform 320ms cubic-bezier(0.34, 1.12, 0.64, 1)",
+            }}
           >
-            <div className="rounded-2xl border border-orange-500/25 bg-background p-4 shadow-lg">
+            {/* Starts square-ish and rounds off as it arrives. Lands at
+                300ms against the 200ms fade, so it finishes a beat after the
+                panel settles and reads as a faint flourish. Much longer than
+                that and the whole rounding plays out while the panel is
+                already opaque, which looks like it began after the fade. */}
+            <div
+              className={cn(
+                "border border-orange-500/25 bg-background p-4 shadow-lg",
+                // Explicit values: this config remaps rounded-lg/md/sm onto
+                // --radius (20px), so the named steps are all too close
+                // together to read as a change.
+                mobileOpen ? "rounded-[1.5rem]" : "rounded-[0.5rem]",
+              )}
+              // Inline, not duration-[...]: tailwindcss-animate makes
+              // duration-* set animation-duration as well, so the class is
+              // ambiguous. Inline always resolves to the transition.
+              style={{ transition: "border-radius 520ms ease-out" }}
+            >
               <nav className="flex flex-col gap-1">
                 <div className="grid grid-cols-2 gap-2">
                   {navLinks.map((link) => (

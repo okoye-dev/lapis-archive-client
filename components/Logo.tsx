@@ -12,7 +12,7 @@ const Logo = ({ className }: LogoProps) => {
       <LogoMark className="h-6 w-6 sm:h-7 sm:w-7" />
       <span
         className={cn(
-          "font-logo text-xl font-semibold italic tracking-tight text-brand transition-opacity hover:opacity-80 sm:text-3xl",
+          "font-logo text-xl font-semibold italic tracking-tight text-brand sm:text-3xl",
           className,
         )}
       >

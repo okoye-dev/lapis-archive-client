@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 
@@ -8,6 +8,10 @@ import PlaceholderImage from "@/components/PlaceholderImage";
 import { cn } from "@/lib/utils";
 
 const SLIDE_DURATION_MS = 11000;
+// Kept in sync with the track's transition below: it's how long we wait
+// after landing on the trailing clone before snapping back to the real
+// first slide.
+const TRANSITION_MS = 250;
 
 interface Slide {
   id: string;
@@ -48,21 +52,30 @@ interface SlideViewProps {
   slide: Slide;
   onCta: () => void;
   active: boolean;
+  /** False during the reset off the clone, when nothing may animate. */
+  animate: boolean;
 }
 
 // One slide in the track. w-full is measured against the track, which is a
 // single panel wide, so every slide is exactly one panel across; shrink-0
 // stops flex from squeezing them all into that one panel's width.
-const SlideView = ({ slide, onCta, active }: SlideViewProps) => (
+const SlideView = ({ slide, onCta, active, animate }: SlideViewProps) => (
   <div
     aria-hidden={!active}
     className={cn(
-      "grid w-full shrink-0 gap-8 transition-opacity duration-700 ease-out md:grid-cols-2 md:items-center md:gap-16",
+      "grid w-full shrink-0 gap-8 md:grid-cols-2 md:items-center md:gap-16",
       // Anything off-centre fades as it travels out of view.
       active ? "opacity-100" : "opacity-0",
     )}
+    // Killed during the reset: the clone and the real first slide swap which
+    // one is "active" at that moment, and letting those opacities animate
+    // crossfades two identical-looking slides — the flash on loop.
+    style={{ transition: animate ? "opacity 200ms linear" : "none" }}
   >
-    <div className="flex flex-col items-start">
+    {/* min-w-0 on both columns: grid items default to min-width:auto, which
+        refuses to shrink below their content and lets a long word push the
+        column — and the artwork beside it — past the slide's right edge. */}
+    <div className="flex min-w-0 flex-col items-start">
       <h2 className="mb-5 text-4xl font-bold leading-[1.05] sm:text-5xl">
         {slide.heading}
       </h2>
@@ -85,29 +98,87 @@ const SlideView = ({ slide, onCta, active }: SlideViewProps) => (
       label={slide.imageLabel}
       gradient="from-primary/30 via-[#15161a] to-[#0a0b0d]"
       aspect="aspect-[4/3]"
-      className="rounded-[3rem] border-zinc-800 text-zinc-400"
+      className="min-w-0 rounded-[3rem] border-zinc-800 text-zinc-400"
     />
   </div>
 );
 
+// The track renders one extra slide: a copy of the first, parked after the
+// last. Advancing off the end travels forward onto that copy, then we
+// silently jump back to the real first slide, so the loop never rewinds.
+const track = [...slides, slides[0]];
+const CLONE_INDEX = slides.length;
+
 const FeatureShowcase = () => {
   const router = useRouter();
-  const [activeIndex, setActiveIndex] = useState(0);
+  // position indexes `track`, so it can reach CLONE_INDEX; activeIndex is
+  // the real slide that position corresponds to.
+  const [position, setPosition] = useState(0);
+  const [snapping, setSnapping] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
+  const pendingPrev = useRef(false);
+
+  const activeIndex = position % slides.length;
+
+  // Clamped at the clone. Without this, clicks arriving faster than the
+  // snap-back could push position past the clone into empty track, where
+  // the reset never fires because it only watches for CLONE_INDEX.
+  const advance = () =>
+    setPosition((p) => (p >= CLONE_INDEX ? p : p + 1));
 
   // One timeout per slide instead of a long-lived interval: any change to
-  // activeIndex (auto or manual) restarts the countdown, so a manual click
+  // position (auto or manual) restarts the countdown, so a manual click
   // never gets an auto-advance firing a moment later.
   useEffect(() => {
-    if (!isPlaying) return;
-    const id = setTimeout(() => {
-      setActiveIndex((activeIndex + 1) % slides.length);
-    }, SLIDE_DURATION_MS);
+    if (!isPlaying || snapping) return;
+    const id = setTimeout(advance, SLIDE_DURATION_MS);
     return () => clearTimeout(id);
-  }, [isPlaying, activeIndex]);
+  }, [isPlaying, position, snapping]);
 
-  const goTo = (index: number) => {
-    setActiveIndex((index + slides.length) % slides.length);
+  // Once the slide onto the clone has finished, cut the transition and move
+  // to the real first slide. They render identically, so the swap is
+  // invisible — it just resets the runway.
+  useEffect(() => {
+    if (position !== CLONE_INDEX) return;
+    const id = setTimeout(() => {
+      setSnapping(true);
+      setPosition(0);
+    }, TRANSITION_MS);
+    return () => clearTimeout(id);
+  }, [position]);
+
+  // Put the transition back once the snap has been committed. Safe at any
+  // delay: `transition: none` and the new transform land in the same render,
+  // so the jump is never animated, and re-enabling later changes no
+  // position. Deliberately a timeout, not requestAnimationFrame — rAF does
+  // not run in a hidden tab, which left this stuck mid-snap with transitions
+  // off and the autoplay loop (which skips while snapping) halted for good.
+  useEffect(() => {
+    if (!snapping) return;
+    const id = setTimeout(() => {
+      setSnapping(false);
+      if (pendingPrev.current) {
+        pendingPrev.current = false;
+        setPosition(CLONE_INDEX - 1);
+      }
+    }, 50);
+    return () => clearTimeout(id);
+  }, [snapping]);
+
+  const goTo = (index: number) => setPosition(index);
+
+  const goNext = advance;
+
+  // Stepping back off the front: jump to the clone first (identical to the
+  // first slide), then animate backwards from there.
+  const goPrev = () => {
+    if (position === 0) {
+      pendingPrev.current = true;
+      setSnapping(true);
+      setPosition(CLONE_INDEX);
+      return;
+    }
+    setPosition((p) => p - 1);
   };
 
   return (
@@ -124,15 +195,26 @@ const FeatureShowcase = () => {
             exactly one slide regardless of how many slides there are. */}
         <div className="overflow-hidden">
           <div
-            className="flex transition-transform duration-700 ease-out"
-            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+            className="flex"
+            style={{
+              transform: `translateX(-${position * 100}%)`,
+              // Linear, so the slide holds one speed and doesn't coast to a
+              // stop at the end. Dropped entirely while snapping back off
+              // the clone, so that reset isn't animated.
+              transition: snapping
+                ? "none"
+                : `transform ${TRANSITION_MS}ms linear`,
+            }}
           >
-            {slides.map((slide, index) => (
+            {track.map((slide, index) => (
+              // Keyed by index, not slide.id: the clone repeats the first
+              // slide's id, and duplicate keys would collapse the two.
               <SlideView
-                key={slide.id}
+                key={index}
                 slide={slide}
                 onCta={() => router.push("/dashboard")}
-                active={index === activeIndex}
+                active={index === position}
+                animate={!snapping}
               />
             ))}
           </div>
@@ -174,19 +256,19 @@ const FeatureShowcase = () => {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => goTo(activeIndex - 1)}
+              onClick={goPrev}
               aria-label="Previous slide"
-              className="group flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-[color,border-color,transform] duration-500 ease-spring hover:scale-110 hover:border-zinc-500 hover:text-white"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 text-zinc-400 transition-[color,border-color] duration-500 hover:border-zinc-500 hover:text-white"
             >
-              <ArrowLeft className="h-5 w-5 transition-transform duration-500 ease-spring group-hover:-translate-x-0.5" />
+              <ArrowLeft className="h-5 w-5" />
             </button>
             <button
               type="button"
-              onClick={() => goTo(activeIndex + 1)}
+              onClick={goNext}
               aria-label="Next slide"
-              className="group flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-[color,border-color,transform] duration-500 ease-spring hover:scale-110 hover:border-zinc-500 hover:text-white"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 text-zinc-400 transition-[color,border-color] duration-500 hover:border-zinc-500 hover:text-white"
             >
-              <ArrowRight className="h-5 w-5 transition-transform duration-500 ease-spring group-hover:translate-x-0.5" />
+              <ArrowRight className="h-5 w-5" />
             </button>
           </div>
         </div>
