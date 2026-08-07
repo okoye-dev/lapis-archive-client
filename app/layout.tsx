@@ -29,17 +29,19 @@ const siteDescription =
 export const metadata: Metadata = {
   title: "Lapis Archive - Simple, Private File Sharing",
   description: siteDescription,
+  // No `images` here on purpose: app/opengraph-image.tsx is a Next file
+  // convention, so Next generates the og:image and twitter:image tags (with
+  // the correct absolute, hashed URL) on its own. Listing a path by hand
+  // here would override that with one Next never actually serves.
   openGraph: {
     title: "Lapis Archive - Simple, Private File Sharing",
     description: siteDescription,
-    images: ["/opengraph-image.jpg"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Lapis Archive - Simple, Private File Sharing",
     description: siteDescription,
-    images: ["/opengraph-image.jpg"],
   },
 };
 

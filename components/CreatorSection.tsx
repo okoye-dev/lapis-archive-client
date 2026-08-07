@@ -2,11 +2,9 @@ import PlaceholderImage from "@/components/PlaceholderImage";
 import LogoMark from "@/components/LogoMark";
 import { CONTACT_EMAIL, GITHUB_URL, PORTFOLIO_URL } from "@/lib/links";
 
-// Coinbase "Zero trading fees" layout: image card on the left, badge +
-// big heading + story + one strong button on the right.
 const CreatorSection = () => {
   return (
-    <section className="container mx-auto px-6 py-16 sm:px-10 sm:py-24 lg:px-20">
+    <section className="container mx-auto px-8 py-16 sm:px-16 sm:py-24 lg:px-28 xl:px-36">
       <div className="grid gap-10 md:grid-cols-2 md:items-center md:gap-16">
         <div className="rounded-[2.5rem] bg-muted p-8 sm:rounded-[3rem] sm:p-14">
           <PlaceholderImage

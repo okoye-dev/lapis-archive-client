@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
@@ -14,24 +14,55 @@ const navLinks = [
   { href: "/signin", label: "Sign In" },
 ];
 
+// Long enough that clipping a corner of the menu on the way to it doesn't
+// dismiss it, short enough that a deliberate exit still feels responsive.
+const CLOSE_DELAY_MS = 1000;
+
 const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelClose = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+
+  const openMenu = () => {
+    cancelClose();
+    setMobileOpen(true);
+  };
+
+  const closeNow = () => {
+    cancelClose();
+    setMobileOpen(false);
+  };
+
+  // Hovering out starts a countdown rather than closing outright, so small
+  // cursor wobbles near the edge don't snap the menu shut.
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setMobileOpen(false), CLOSE_DELAY_MS);
+  };
+
+  useEffect(() => cancelClose, []);
 
   const goTo = (href: string) => {
-    setMobileOpen(false);
+    closeNow();
     router.push(href);
   };
 
   return (
     <header className="fixed left-0 top-0 z-20 w-full animate-nav-drop">
       <div className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-4 sm:px-6 lg:px-10">
-        <div className="flex h-11 w-fit items-center justify-self-start rounded-full border border-orange-500/25 bg-background/95 px-4 backdrop-blur-md transition-colors duration-500 hover:bg-primary/[0.08]">
+        <div className="flex h-11 w-fit items-center justify-self-start rounded-full border border-orange-500/25 bg-background px-4 transition-colors duration-500 hover:bg-secondary">
           <Logo />
         </div>
 
-        <nav className="hidden h-11 items-center gap-0.5 rounded-full border border-orange-500/25 bg-background/50 px-1 backdrop-blur-md md:flex">
+        <nav className="hidden h-11 items-center gap-0.5 rounded-full border border-orange-500/25 bg-background px-1 md:flex">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -72,42 +103,69 @@ const Navbar = () => {
         </div>
 
         {/* col-start-3 is load-bearing: the desktop nav and Sign Up button
-            are display:none on mobile, so without it this button would be
-            auto-placed into the middle column instead of the right one. */}
-        <button
-          type="button"
-          onClick={() => setMobileOpen((open) => !open)}
-          className="col-start-3 flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-orange-500/25 bg-background/95 text-foreground backdrop-blur-md transition-colors duration-500 hover:bg-primary/[0.08] md:hidden"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          aria-expanded={mobileOpen}
+            are display:none on mobile, so without it this would be
+            auto-placed into the middle column instead of the right one.
+            Button and panel share one hover region so moving between them
+            never counts as leaving. */}
+        <div
+          className="relative col-start-3 justify-self-end md:hidden"
+          onMouseEnter={openMenu}
+          onMouseLeave={scheduleClose}
         >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => (mobileOpen ? closeNow() : openMenu())}
+            // hover:bg-secondary, not a translucent primary: an alpha colour
+            // replaces the opaque background outright, which made the button
+            // see-through against whatever section was behind it.
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-orange-500/25 bg-background text-foreground transition-colors duration-500 hover:bg-secondary"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
 
-      {/* mr-auto + max-w keeps the panel hugging the left edge on small
-          screens instead of stretching the full width. */}
-      {mobileOpen && (
-        <div className="ml-4 mr-auto mt-2 max-w-xs animate-menu-open rounded-2xl border border-orange-500/25 bg-background p-4 shadow-lg sm:ml-6 md:hidden">
-          <nav className="flex flex-col gap-1">
-            <div className="grid grid-cols-2 gap-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center rounded-full bg-primary/[0.07] px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-500 ease-spring hover:bg-primary/20 hover:text-[hsl(252,55%,45%)]"
+          {/* Always mounted so opening and closing both animate — a
+              conditional mount can only ever animate the entrance, since the
+              element is gone before an exit could play. pt-2 is a hover
+              bridge: it puts the gap under the button inside this element's
+              box, so crossing it doesn't trigger the parent's mouseleave. */}
+          <div
+            aria-hidden={!mobileOpen}
+            className={cn(
+              "absolute right-0 top-full w-64 pt-2 transition-[opacity,transform] duration-300 ease-out",
+              mobileOpen
+                ? "translate-y-0 opacity-100"
+                : "pointer-events-none -translate-y-1 opacity-0",
+            )}
+          >
+            <div className="rounded-2xl border border-orange-500/25 bg-background p-4 shadow-lg">
+              <nav className="flex flex-col gap-1">
+                <div className="grid grid-cols-2 gap-2">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={closeNow}
+                      tabIndex={mobileOpen ? undefined : -1}
+                      className="flex items-center justify-center rounded-full bg-primary/[0.07] px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-500 hover:bg-primary/20 hover:text-[hsl(252,55%,45%)]"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+                <Button
+                  className="mt-2 w-full rounded-full"
+                  tabIndex={mobileOpen ? undefined : -1}
+                  onClick={() => goTo("/signup")}
                 >
-                  {link.label}
-                </Link>
-              ))}
+                  Sign Up
+                </Button>
+              </nav>
             </div>
-            <Button className="mt-2 w-full rounded-full" onClick={() => goTo("/signup")}>
-              Sign Up
-            </Button>
-          </nav>
+          </div>
         </div>
-      )}
+      </div>
     </header>
   );
 };

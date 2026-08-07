@@ -11,18 +11,16 @@ interface StatCardProps {
   className?: string;
 }
 
-// Aave-style stat card, tuned for the dark statement section: a faint
-// purple-tinted pane rather than solid white. The icon is drawn twice, a
-// dull copy and a copy stroked with the brand's purple-to-orange gradient;
-// hovering the card slowly crossfades them (same trick as SocialIcon) and
-// lifts the whole card.
 const StatCard = ({ icon: Icon, title, description, className }: StatCardProps) => {
   const gradientId = useId();
 
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-3xl border border-primary/20 bg-primary/[0.17] p-5 backdrop-blur-sm transition-[background-color,border-color] duration-500 ease-spring hover:border-primary/40 hover:bg-primary/[0.24] sm:p-7",
+        // min-h + justify-between makes the card read as a square-ish tile:
+        // the padding stays tight while the icon and the text push apart to
+        // fill the height, instead of the box collapsing to a wide strip.
+        "group relative flex min-h-[13.5rem] flex-col justify-between overflow-hidden rounded-[2rem] border border-primary/20 bg-primary/[0.17] p-6 backdrop-blur-sm transition-[background-color,border-color] duration-500 ease-spring hover:border-primary/40 hover:bg-primary/[0.24] sm:p-7",
         className,
       )}
     >
@@ -62,7 +60,7 @@ const StatCard = ({ icon: Icon, title, description, className }: StatCardProps) 
         </defs>
       </svg>
 
-      <div className="relative mb-5 h-6 w-6 transition-transform duration-700 ease-spring group-hover:-translate-y-1.5 group-hover:-rotate-[18deg] group-hover:skew-x-6 group-hover:scale-[1.45] sm:mb-10 sm:h-7 sm:w-7">
+      <div className="relative h-5 w-5 transition-transform duration-700 ease-spring group-hover:-rotate-[18deg] group-hover:skew-x-6 group-hover:scale-[1.45] sm:h-6 sm:w-6">
         <Icon
           aria-hidden
           className="absolute inset-0 h-full w-full text-slate-500 transition-opacity duration-700 ease-out group-hover:opacity-0"
@@ -74,12 +72,14 @@ const StatCard = ({ icon: Icon, title, description, className }: StatCardProps) 
         />
       </div>
 
-      <p className="relative font-logo text-xl font-semibold italic tracking-tight text-[hsl(28,90%,78%)] sm:text-2xl">
-        {title}
-      </p>
-      <p className="relative mt-2 text-sm text-slate-400 sm:mt-3">
-        {description}
-      </p>
+      {/* Wrapped so the card's justify-between splits icon vs. text as two
+          blocks, rather than spreading the title and description apart. */}
+      <div className="relative">
+        <p className="font-logo text-xl font-semibold italic tracking-tight text-[hsl(28,90%,78%)] sm:text-[1.375rem]">
+          {title}
+        </p>
+        <p className="mt-1.5 text-sm text-slate-400">{description}</p>
+      </div>
     </div>
   );
 };

@@ -26,7 +26,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <section className="px-4 pt-2 sm:px-6 sm:pt-4">
         <div className="container relative mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-[2.5rem] bg-slate-950 px-6 py-20 text-center sm:rounded-[3rem] sm:py-28">
           <HeroBlobs />
@@ -74,26 +73,25 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Platform Statement Section */}
-      <section className="bg-slate-950 py-20 text-white sm:py-28">
-        <div className="container mx-auto grid gap-10 px-6 sm:px-10 md:grid-cols-2 md:items-stretch md:gap-16 lg:px-20">
+      <section className="bg-slate-950 py-20 text-white sm:py-24">
+        <div className="container mx-auto grid gap-10 px-6 sm:px-8 md:grid-cols-2 md:items-stretch md:gap-14 lg:px-12">
           <div className="flex flex-col">
-            <p className="mb-6 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
               The whole point
             </p>
-            <h2 className="mb-4 text-6xl font-bold leading-[0.95] sm:text-7xl lg:text-8xl">
+            <h2 className="mb-3 text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl">
               Built for one job.
             </h2>
-            <p className="mb-6 text-2xl font-medium text-slate-300 sm:text-3xl">
+            <p className="mb-4 text-xl font-medium text-slate-300 sm:text-2xl">
               Get a file from you to someone else, safely.
             </p>
-            <p className="max-w-md text-base text-slate-400 sm:text-lg">
+            <p className="max-w-md text-base text-slate-400">
               This started as a way to fling files between devices that
               refuse to talk to each other. Phone to laptop, work machine
               to home machine, your computer to your friend's. Upload, get
               a code, send the code. Done.
             </p>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <StatCard
                 icon={Zap}
                 title="3 steps"
@@ -105,7 +103,7 @@ const Home = () => {
                 description="The only thing between your file and strangers."
               />
             </div>
-            <p className="mt-10 border-t border-slate-800 pt-6 text-sm leading-relaxed text-slate-500 md:mt-auto">
+            <p className="mt-8 border-t border-slate-800 pt-3 text-sm leading-relaxed text-slate-500 md:mt-auto">
               No account for your recipient, no apps, nothing to uninstall
               later. The file just goes where you point it.
             </p>
@@ -119,15 +117,11 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Feature Showcase Section */}
       <FeatureShowcase />
 
-      {/* Creator Section */}
       <CreatorSection />
 
-      {/* Final CTA Section: fills the rest of the viewport and warms from
-          transparent into the brand's purple-to-orange as it descends. */}
-      <section className="flex min-h-[130vh] items-center justify-center bg-gradient-to-b from-transparent via-primary/[0.12] to-orange-500/25 px-6 py-28 text-center sm:px-10 lg:px-20">
+      <section className="flex min-h-[100vh] items-center justify-center bg-gradient-to-b from-transparent via-primary/[0.12] to-orange-500/25 px-8 py-24 text-center sm:px-16 lg:px-28 xl:px-36">
         <div className="container mx-auto">
           <h2 className="mb-4 text-4xl font-bold text-foreground sm:text-5xl">
             Go on, send something

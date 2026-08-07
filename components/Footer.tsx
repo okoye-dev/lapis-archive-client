@@ -17,7 +17,7 @@ const footerLinks = [
 const Footer = () => {
   return (
     <footer className="border-t border-border bg-background">
-      <div className="container mx-auto flex flex-col px-6 py-12 sm:px-10 sm:py-16 lg:px-20">
+      <div className="container mx-auto flex flex-col px-8 py-12 sm:px-16 sm:py-16 lg:px-28 xl:px-36">
         <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
           <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2">
             {footerLinks.map((link) => (
