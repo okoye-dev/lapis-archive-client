@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { MouseEvent } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check } from "lucide-react";
 
@@ -61,23 +60,6 @@ const Home = () => {
   const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [activeTab, setActiveTab] = useState(tabs[0].id);
 
-  // Tracked on the hero panel itself (not window/document), so the blobs
-  // only ever react while the cursor is actually over the hero — nothing
-  // to pause when scrolling elsewhere, because nothing is listening there.
-  const heroRef = useRef<HTMLDivElement>(null);
-  const [blobOffset, setBlobOffset] = useState({ x: 0, y: 0 });
-
-  const handleHeroMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    const rect = heroRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setBlobOffset({
-      x: e.clientX - (rect.left + rect.width / 2),
-      y: e.clientY - (rect.top + rect.height / 2),
-    });
-  };
-
-  const handleHeroMouseLeave = () => setBlobOffset({ x: 0, y: 0 });
-
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveWordIndex((prev) => (prev + 1) % heroWords.length);
@@ -91,13 +73,8 @@ const Home = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="px-4 pt-2 sm:px-6 sm:pt-4">
-        <div
-          ref={heroRef}
-          onMouseMove={handleHeroMouseMove}
-          onMouseLeave={handleHeroMouseLeave}
-          className="container relative mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-2xl bg-slate-950 px-6 py-20 text-center sm:rounded-3xl sm:py-28"
-        >
-          <HeroBlobs offset={blobOffset} />
+        <div className="container relative mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-2xl bg-slate-950 px-6 py-20 text-center sm:rounded-3xl sm:py-28">
+          <HeroBlobs />
 
           <div className="relative z-10 flex flex-col items-center">
             <p className="mb-4 text-sm font-medium text-slate-400 sm:text-base">
