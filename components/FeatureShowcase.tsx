@@ -90,7 +90,11 @@ const FeatureShowcase = () => {
             <button
               type="button"
               onClick={() => router.push("/dashboard")}
-              className="animate-pop-in rounded-full bg-white px-8 py-4 text-base font-semibold text-[#0a0b0d] transition-colors duration-500 hover:bg-zinc-200"
+              // duration-500 is avoided here on purpose: tailwindcss-animate
+              // makes duration-* set animation-duration too, which would
+              // shorten the pop-in. The arbitrary property only hits the
+              // transition.
+              className="animate-pop-in rounded-full bg-white px-8 py-4 text-base font-semibold text-[#0a0b0d] transition-colors [transition-duration:500ms] hover:bg-zinc-200"
             >
               {slide.cta}
             </button>

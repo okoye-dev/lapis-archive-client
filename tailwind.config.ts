@@ -127,7 +127,7 @@ const config = {
         },
         // Carousel slide content: drift up into place while fading in.
         "rise-in": {
-          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "0%": { opacity: "0", transform: "translateY(24px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         // Smaller sibling of rise-in for labels that swap in place.
@@ -141,8 +141,8 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "nav-drop": "nav-drop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both",
         "menu-open": "menu-open 0.55s cubic-bezier(0.22, 1, 0.36, 1) both",
-        "rise-in": "rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both",
-        "pop-in": "pop-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "rise-in": "rise-in 1.5s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "pop-in": "pop-in 1.2s cubic-bezier(0.22, 1, 0.36, 1) both",
       },
     },
   },

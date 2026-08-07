@@ -31,7 +31,7 @@ const Navbar = () => {
           <Logo />
         </div>
 
-        <nav className="hidden h-11 items-center gap-1 rounded-full border border-orange-500/25 bg-background/95 px-2 backdrop-blur-md md:flex">
+        <nav className="hidden h-11 items-center gap-0.5 rounded-full border border-orange-500/25 bg-background/95 px-1 backdrop-blur-md md:flex">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -39,15 +39,23 @@ const Navbar = () => {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  // h-8 inside the h-11 pill keeps the hover background
-                  // from touching the bubble's top and bottom edges.
-                  "flex h-8 items-center rounded-full px-5 text-base font-medium transition-[color,background-color,transform] duration-500 ease-spring hover:scale-[1.06]",
+                  // h-9 inside the h-11 pill leaves a 1px breathing gap so
+                  // the hover background never touches the bubble's edges.
+                  "group relative flex h-9 items-center rounded-full px-5 text-base font-medium transition-colors duration-500",
                   isActive
                     ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-primary/[0.08] hover:text-[hsl(252,55%,45%)]",
+                    : "text-muted-foreground hover:text-[hsl(252,55%,45%)]",
                 )}
               >
-                {link.label}
+                {/* Separate layer so the background can scale up without
+                    dragging the label's size along with it. */}
+                {!isActive && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 scale-90 rounded-full bg-primary/20 opacity-0 transition-[transform,opacity] duration-500 ease-spring group-hover:scale-100 group-hover:opacity-100"
+                  />
+                )}
+                <span className="relative">{link.label}</span>
               </Link>
             );
           })}
@@ -77,8 +85,10 @@ const Navbar = () => {
         </button>
       </div>
 
+      {/* mr-auto + max-w keeps the panel hugging the left edge on small
+          screens instead of stretching the full width. */}
       {mobileOpen && (
-        <div className="mx-4 mt-2 animate-menu-open rounded-2xl border border-orange-500/25 bg-background p-4 shadow-lg sm:mx-6 md:hidden">
+        <div className="ml-4 mr-auto mt-2 max-w-xs animate-menu-open rounded-2xl border border-orange-500/25 bg-background p-4 shadow-lg sm:ml-6 md:hidden">
           <nav className="flex flex-col gap-1">
             <div className="grid grid-cols-2 gap-2">
               {navLinks.map((link) => (
@@ -86,7 +96,7 @@ const Navbar = () => {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center rounded-full px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-500 ease-spring hover:bg-primary/[0.08] hover:text-[hsl(252,55%,45%)]"
+                  className="flex items-center justify-center rounded-full bg-primary/[0.07] px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-500 ease-spring hover:bg-primary/20 hover:text-[hsl(252,55%,45%)]"
                 >
                   {link.label}
                 </Link>
