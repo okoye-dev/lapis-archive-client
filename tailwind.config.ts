@@ -43,6 +43,7 @@ const config = {
         gray: colors.gray,
         zinc: colors.zinc,
         slate: colors.slate,
+        orange: colors.orange,
         black: "#212121",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

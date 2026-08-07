@@ -72,35 +72,51 @@ const Home = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="px-4 pt-2 sm:px-6 sm:pt-4">
-        <div className="container mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-2xl bg-slate-950 px-6 py-20 text-center sm:rounded-3xl sm:py-28">
-          <p className="mb-4 text-sm font-medium text-slate-400 sm:text-base">
-            Open source. No account needed to upload.
-          </p>
-          <h1 className="mx-auto flex max-w-3xl flex-wrap items-baseline justify-center gap-x-3 gap-y-2">
-            <span className="text-4xl font-bold tracking-tighter text-white sm:text-6xl md:text-7xl">
-              Share
-            </span>
-            <span
-              key={heroWords[activeWordIndex]}
-              className="text-4xl font-bold tracking-tighter text-primary transition-opacity duration-500 sm:text-6xl md:text-7xl"
-            >
-              {heroWords[activeWordIndex]}
-            </span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-xl text-base text-slate-300 sm:text-lg">
-            Upload a file, get a public link and an access code, send both to
-            whoever needs it — we only ask for an email when you're ready to
-            share.
-          </p>
-          <div className="mt-10 flex justify-center">
-            <Button
-              size="lg"
-              className="rounded-full text-lg sm:px-10 sm:py-7 sm:text-xl"
-              onClick={() => router.push("/dashboard")}
-            >
-              Upload something
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+        <div className="group container relative mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-2xl bg-slate-950 px-6 py-20 text-center sm:rounded-3xl sm:py-28">
+          {/* Decorative blurred blobs — purely visual, clipped to the panel's rounded corners by the parent's overflow-hidden */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl transition-transform duration-700 ease-out group-hover:scale-125 group-hover:-translate-x-4"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -bottom-32 -right-16 h-96 w-96 rounded-full bg-orange-500/20 blur-3xl transition-transform duration-700 ease-out group-hover:scale-125 group-hover:translate-x-4"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute right-1/4 top-1/4 h-56 w-56 rounded-full bg-primary/20 blur-3xl transition-transform duration-700 ease-out group-hover:scale-110"
+          />
+
+          <div className="relative z-10 flex flex-col items-center">
+            <p className="mb-4 text-sm font-medium text-slate-400 sm:text-base">
+              Open source. No account needed to upload.
+            </p>
+            <h1 className="mx-auto flex max-w-3xl flex-wrap items-baseline justify-center gap-x-3 gap-y-2">
+              <span className="text-4xl font-bold tracking-tighter text-white sm:text-6xl md:text-7xl">
+                Share
+              </span>
+              <span
+                key={heroWords[activeWordIndex]}
+                className="text-4xl font-bold tracking-tighter text-primary transition-opacity duration-500 sm:text-6xl md:text-7xl"
+              >
+                {heroWords[activeWordIndex]}
+              </span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-xl text-base text-slate-300 sm:text-lg">
+              Upload a file, get a public link and an access code, send both
+              to whoever needs it — we only ask for an email when you're
+              ready to share.
+            </p>
+            <div className="mt-10 flex justify-center">
+              <Button
+                size="lg"
+                className="rounded-full text-lg sm:px-10 sm:py-7 sm:text-xl"
+                onClick={() => router.push("/dashboard")}
+              >
+                Upload something
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
         <div className="mt-6 text-center">
