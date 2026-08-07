@@ -63,20 +63,20 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="mt-6 text-center">
+        <div className="my-6 text-center">
           <button
             type="button"
             onClick={() => router.push("/signin")}
             className="text-sm text-muted-foreground underline-offset-4 hover:underline"
           >
-            Already have an account? Sign in
+            peekaboo.
           </button>
         </div>
       </section>
 
       {/* Platform Statement Section */}
       <section className="bg-slate-950 py-20 text-white sm:py-28">
-        <div className="container mx-auto grid gap-10 px-4 md:grid-cols-2 md:items-stretch md:gap-16">
+        <div className="container mx-auto grid gap-10 px-6 sm:px-10 md:grid-cols-2 md:items-stretch md:gap-16 lg:px-20">
           <div className="flex flex-col">
             <p className="mb-6 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
               The whole point
