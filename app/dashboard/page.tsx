@@ -162,7 +162,7 @@ const Dashboard = () => {
 
             {!loading && !error && files.length === 0 && (
               <p className="mt-6 text-center text-sm text-muted-foreground">
-                No files yet — upload one to get started.
+                No files yet. Upload one and it will show up here.
               </p>
             )}
 
@@ -233,7 +233,7 @@ const Dashboard = () => {
                     <p className="mt-1 text-xs text-muted-foreground">
                       {share.recipientEmail
                         ? `Emailed to ${share.recipientEmail}`
-                        : "Not emailed — shared manually"}
+                        : "Not emailed, you shared it yourself"}
                     </p>
                     <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                       <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -290,12 +290,12 @@ const Dashboard = () => {
             </DialogTitle>
             <DialogDescription>
               {!sharerEmail
-                ? "Uploading is free for anyone, and files are kept for 24 hours. Add your email — no password, no code sent — to share this file and keep it for 3 days instead."
+                ? "Uploading is free for anyone, and files are kept for 24 hours. Add your email (no password, no code sent) to share this file and keep it for 3 days instead."
                 : shareResult
                   ? shareResult.recipientEmail
                     ? `Sent to ${shareResult.recipientEmail}. You can also copy the link and code yourself.`
-                    : "Copy the link and code below to share them with anyone."
-                  : "We'll generate a link and access code for this file. Emailing it is optional — you can just copy and send them yourself."}
+                    : "Copy the link and code below and share them with anyone."
+                  : "You'll get a link and an access code for this file. Emailing it is optional, you can just copy both and send them yourself."}
             </DialogDescription>
           </DialogHeader>
 

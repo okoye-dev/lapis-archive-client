@@ -23,19 +23,22 @@ const fraunces = Fraunces({
   variable: "--font-logo",
 });
 
+const siteDescription =
+  "Upload a file, get a link and an access code, send both to whoever needs them. Open source and friendly.";
+
 export const metadata: Metadata = {
-  title: "Lapis Archive - File Sharing Platform",
-  description: "Open Source File Sharing & Collaboration Platform",
+  title: "Lapis Archive - Simple, Private File Sharing",
+  description: siteDescription,
   openGraph: {
-    title: "Lapis Archive - File Sharing Platform",
-    description: "Open Source File Sharing & Collaboration Platform",
+    title: "Lapis Archive - Simple, Private File Sharing",
+    description: siteDescription,
     images: ["/opengraph-image.jpg"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lapis Archive - File Sharing Platform",
-    description: "Open Source File Sharing & Collaboration Platform",
+    title: "Lapis Archive - Simple, Private File Sharing",
+    description: siteDescription,
     images: ["/opengraph-image.jpg"],
   },
 };

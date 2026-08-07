@@ -31,7 +31,7 @@ const SignUp = () => {
 
       toast({
         title: "Account created!",
-        description: "Welcome to Lapis Archive!",
+        description: "Welcome in. Lovely to have you here.",
       });
 
       router.push("/dashboard");
@@ -52,7 +52,7 @@ const SignUp = () => {
             Create Account
           </h1>
           <p className="text-sm text-muted-foreground">
-            Sign up to start sharing files securely
+            A minute of setup, then sharing files gets easy.
           </p>
         </div>
 

@@ -101,8 +101,8 @@ const SharePage = () => {
           </h1>
           <p className="text-sm text-muted-foreground">
             {unlocked
-              ? "This file was shared with you."
-              : "Enter the code emailed to you to view this file."}
+              ? "Someone sent this to you. It's ready whenever you are."
+              : "Enter the code that was shared with you to unlock this file."}
           </p>
         </div>
 

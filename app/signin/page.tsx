@@ -29,7 +29,7 @@ const SignIn = () => {
 
       toast({
         title: "Welcome back!",
-        description: "You've successfully signed in.",
+        description: "You're signed in. Your files are waiting.",
       });
 
       if (email === "admin@example.com") {
@@ -54,7 +54,7 @@ const SignIn = () => {
             Sign In
           </h1>
           <p className="text-sm text-muted-foreground">
-            Enter your credentials to access your account
+            Good to see you again. Sign in to get back to your files.
           </p>
         </div>
 
