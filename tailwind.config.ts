@@ -97,6 +97,12 @@ const config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      // Soft spring: eases out past the target by ~8% and settles back.
+      // The y1 value (1.35) controls how far it overshoots; keep it small
+      // so movement reads as a gentle bounce, not a wobble.
+      transitionTimingFunction: {
+        spring: "cubic-bezier(0.34, 1.35, 0.64, 1)",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -106,10 +112,37 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        // Navbar on first paint: a quiet fade and grow, no theatrics.
+        "nav-drop": {
+          "0%": { opacity: "0", transform: "translateY(-8px) scale(0.97)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        // The mobile menu panel glides down and settles with a soft
+        // bounce: full travel first, then barely past the resting point
+        // (~10% of the distance), then home.
+        "menu-open": {
+          "0%": { opacity: "0", transform: "translateY(-16px)" },
+          "70%": { opacity: "1", transform: "translateY(1.5px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        // Carousel slide content: drift up into place while fading in.
+        "rise-in": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        // Smaller sibling of rise-in for labels that swap in place.
+        "pop-in": {
+          "0%": { opacity: "0", transform: "scale(0.94)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "nav-drop": "nav-drop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "menu-open": "menu-open 0.55s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "rise-in": "rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "pop-in": "pop-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both",
       },
     },
   },

@@ -59,7 +59,7 @@ const CreatorSection = () => {
               href={PORTFOLIO_URL}
               className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
             >
-              my portfolio
+              my website
             </a>
             .
           </p>

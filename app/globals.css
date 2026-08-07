@@ -138,6 +138,17 @@
   }
 }
 
+/* Entrance flourishes are decorative, so drop them for anyone who has
+   asked the OS to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-nav-drop,
+  .animate-menu-open,
+  .animate-rise-in,
+  .animate-pop-in {
+    animation: none;
+  }
+}
+
 @keyframes slideIn {
   from {
     transform: translateY(0);

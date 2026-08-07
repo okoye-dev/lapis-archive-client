@@ -125,18 +125,19 @@ const Home = () => {
       {/* Creator Section */}
       <CreatorSection />
 
-      {/* Final CTA Section */}
-      <section className="px-4 pb-16 sm:px-6">
-        <div className="container mx-auto rounded-[2.5rem] bg-muted/50 px-4 py-16 text-center sm:rounded-[3rem] sm:py-20">
-          <h2 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl">
+      {/* Final CTA Section: fills the rest of the viewport and warms from
+          transparent into the brand's purple-to-orange as it descends. */}
+      <section className="flex min-h-screen items-center justify-center bg-gradient-to-b from-transparent via-primary/[0.12] to-orange-500/25 px-4 py-20 text-center sm:px-6">
+        <div className="container mx-auto">
+          <h2 className="mb-4 text-4xl font-bold text-foreground sm:text-5xl">
             Go on, send something
           </h2>
-          <p className="mx-auto mb-8 max-w-md text-muted-foreground">
+          <p className="mx-auto mb-10 max-w-md text-muted-foreground sm:text-lg">
             It takes less time than finding the right USB cable.
           </p>
           <Button
             size="lg"
-            className="text-lg sm:px-10 sm:py-7"
+            className="rounded-full border border-orange-500/40 text-lg sm:px-10 sm:py-7"
             onClick={() => router.push("/dashboard")}
           >
             Upload something

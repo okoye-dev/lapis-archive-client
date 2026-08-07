@@ -7,7 +7,7 @@ import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import PlaceholderImage from "@/components/PlaceholderImage";
 import { cn } from "@/lib/utils";
 
-const SLIDE_DURATION_MS = 6000;
+const SLIDE_DURATION_MS = 11000;
 
 interface Slide {
   id: string;
@@ -72,20 +72,25 @@ const FeatureShowcase = () => {
         role="region"
         aria-roledescription="carousel"
         aria-label="What Lapis Archive does"
-        className="mx-auto max-w-5xl rounded-[3rem] bg-[#131419] px-6 py-12 sm:rounded-[4rem] sm:px-12 sm:py-16"
+        className="mx-auto max-w-6xl rounded-[3rem] bg-[#131419] px-6 py-10 sm:rounded-[4rem] sm:px-14 sm:py-12"
       >
-        <div className="grid gap-10 md:grid-cols-2 md:items-center md:gap-16">
-          <div key={slide.id} className="flex flex-col items-start">
-            <h2 className="mb-6 text-4xl font-bold leading-[1.05] sm:text-5xl lg:text-6xl">
+        {/* Keyed on the slide id so every change replays the entrance
+            animation on the text column and the artwork together. */}
+        <div
+          key={slide.id}
+          className="grid gap-8 md:grid-cols-2 md:items-center md:gap-16"
+        >
+          <div className="flex animate-rise-in flex-col items-start">
+            <h2 className="mb-5 text-4xl font-bold leading-[1.05] sm:text-5xl">
               {slide.heading}
             </h2>
-            <p className="mb-8 max-w-md text-base text-zinc-400 sm:text-lg">
+            <p className="mb-7 max-w-md text-base text-zinc-400 sm:text-lg">
               {slide.body}
             </p>
             <button
               type="button"
               onClick={() => router.push("/dashboard")}
-              className="rounded-full bg-white px-8 py-4 text-base font-semibold text-[#0a0b0d] transition-colors hover:bg-zinc-200"
+              className="animate-pop-in rounded-full bg-white px-8 py-4 text-base font-semibold text-[#0a0b0d] transition-colors duration-500 hover:bg-zinc-200"
             >
               {slide.cta}
             </button>
@@ -94,12 +99,12 @@ const FeatureShowcase = () => {
           <PlaceholderImage
             label={slide.imageLabel}
             gradient="from-primary/30 via-[#15161a] to-[#0a0b0d]"
-            aspect="aspect-square"
-            className="rounded-[3rem] border-zinc-800 text-zinc-400"
+            aspect="aspect-[4/3]"
+            className="animate-rise-in rounded-[3rem] border-zinc-800 text-zinc-400"
           />
         </div>
 
-        <div className="mt-12 flex items-center justify-between">
+        <div className="mt-10 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               {slides.map((s, index) => (
@@ -110,10 +115,10 @@ const FeatureShowcase = () => {
                   aria-current={index === activeIndex}
                   onClick={() => goTo(index)}
                   className={cn(
-                    "h-2 rounded-full transition-all duration-300",
+                    "h-2 rounded-full transition-[width,background-color] duration-500 ease-spring",
                     index === activeIndex
-                      ? "w-8 bg-white"
-                      : "w-2 bg-zinc-600 hover:bg-zinc-400",
+                      ? "w-10 bg-white"
+                      : "w-2 bg-zinc-600 hover:w-4 hover:bg-zinc-400",
                   )}
                 />
               ))}
@@ -122,12 +127,12 @@ const FeatureShowcase = () => {
               type="button"
               onClick={() => setIsPlaying((prev) => !prev)}
               aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-[color,border-color,transform] duration-500 ease-spring hover:scale-110 hover:border-zinc-500 hover:text-white"
             >
               {isPlaying ? (
-                <Pause className="h-4 w-4" />
+                <Pause key="pause" className="h-4 w-4 animate-pop-in" />
               ) : (
-                <Play className="h-4 w-4" />
+                <Play key="play" className="h-4 w-4 animate-pop-in" />
               )}
             </button>
           </div>
@@ -137,17 +142,17 @@ const FeatureShowcase = () => {
               type="button"
               onClick={() => goTo(activeIndex - 1)}
               aria-label="Previous slide"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white"
+              className="group flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-[color,border-color,transform] duration-500 ease-spring hover:scale-110 hover:border-zinc-500 hover:text-white"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 transition-transform duration-500 ease-spring group-hover:-translate-x-0.5" />
             </button>
             <button
               type="button"
               onClick={() => goTo(activeIndex + 1)}
               aria-label="Next slide"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white"
+              className="group flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-[color,border-color,transform] duration-500 ease-spring hover:scale-110 hover:border-zinc-500 hover:text-white"
             >
-              <ArrowRight className="h-5 w-5" />
+              <ArrowRight className="h-5 w-5 transition-transform duration-500 ease-spring group-hover:translate-x-0.5" />
             </button>
           </div>
         </div>

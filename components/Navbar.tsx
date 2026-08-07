@@ -25,13 +25,13 @@ const Navbar = () => {
   };
 
   return (
-    <header className="fixed left-0 top-0 z-20 w-full">
+    <header className="fixed left-0 top-0 z-20 w-full animate-nav-drop">
       <div className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-4 sm:px-6 lg:px-10">
-        <div className="flex h-11 w-fit items-center justify-self-start rounded-full border border-orange-500/40 bg-background/95 px-4 backdrop-blur-md">
+        <div className="flex h-11 w-fit items-center justify-self-start rounded-full border border-orange-500/25 bg-background/95 px-4 backdrop-blur-md transition-colors duration-500 hover:bg-primary/[0.08]">
           <Logo />
         </div>
 
-        <nav className="hidden h-11 items-center gap-1 rounded-full border border-orange-500/40 bg-background/95 px-2 backdrop-blur-md md:flex">
+        <nav className="hidden h-11 items-center gap-1 rounded-full border border-orange-500/25 bg-background/95 px-2 backdrop-blur-md md:flex">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -39,10 +39,12 @@ const Navbar = () => {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex h-full items-center rounded-full px-5 text-base font-medium transition-colors",
+                  // h-8 inside the h-11 pill keeps the hover background
+                  // from touching the bubble's top and bottom edges.
+                  "flex h-8 items-center rounded-full px-5 text-base font-medium transition-[color,background-color,transform] duration-500 ease-spring hover:scale-[1.06]",
                   isActive
                     ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    : "text-muted-foreground hover:bg-primary/[0.08] hover:text-[hsl(252,55%,45%)]",
                 )}
               >
                 {link.label}
@@ -61,10 +63,13 @@ const Navbar = () => {
           </Button>
         </div>
 
+        {/* col-start-3 is load-bearing: the desktop nav and Sign Up button
+            are display:none on mobile, so without it this button would be
+            auto-placed into the middle column instead of the right one. */}
         <button
           type="button"
           onClick={() => setMobileOpen((open) => !open)}
-          className="flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-border/60 bg-background/95 text-foreground backdrop-blur-md md:hidden"
+          className="col-start-3 flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-orange-500/25 bg-background/95 text-foreground backdrop-blur-md transition-colors duration-500 hover:bg-primary/[0.08] md:hidden"
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileOpen}
         >
@@ -73,18 +78,20 @@ const Navbar = () => {
       </div>
 
       {mobileOpen && (
-        <div className="mx-4 mt-2 rounded-2xl border border-border/60 bg-background p-4 shadow-lg sm:mx-6 md:hidden">
+        <div className="mx-4 mt-2 animate-menu-open rounded-2xl border border-orange-500/25 bg-background p-4 shadow-lg sm:mx-6 md:hidden">
           <nav className="flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))}
+            <div className="grid grid-cols-2 gap-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-center rounded-full px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-500 ease-spring hover:bg-primary/[0.08] hover:text-[hsl(252,55%,45%)]"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
             <Button className="mt-2 w-full rounded-full" onClick={() => goTo("/signup")}>
               Sign Up
             </Button>
