@@ -144,7 +144,8 @@
   .animate-nav-drop,
   .animate-menu-open,
   .animate-rise-in,
-  .animate-pop-in {
+  .animate-pop-in,
+  .animate-fade-out {
     animation: none;
   }
 }

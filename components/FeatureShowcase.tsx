@@ -8,6 +8,9 @@ import PlaceholderImage from "@/components/PlaceholderImage";
 import { cn } from "@/lib/utils";
 
 const SLIDE_DURATION_MS = 11000;
+// Must match the fade-out animation length in tailwind.config.ts, since
+// that's how long the outgoing slide stays mounted before being replaced.
+const EXIT_DURATION_MS = 700;
 
 interface Slide {
   id: string;
@@ -46,8 +49,21 @@ const slides: Slide[] = [
 
 const FeatureShowcase = () => {
   const router = useRouter();
+  // activeIndex is the slide we're heading to; shownIndex is the one still
+  // on screen. They differ only while the outgoing slide plays its exit.
   const [activeIndex, setActiveIndex] = useState(0);
+  const [shownIndex, setShownIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+
+  const isLeaving = activeIndex !== shownIndex;
+
+  // Hold the outgoing slide mounted for the length of its fade, then swap
+  // in the new one so it can play its own entrance.
+  useEffect(() => {
+    if (!isLeaving) return;
+    const id = setTimeout(() => setShownIndex(activeIndex), EXIT_DURATION_MS);
+    return () => clearTimeout(id);
+  }, [isLeaving, activeIndex]);
 
   // One timeout per slide instead of a long-lived interval: any change to
   // activeIndex (auto or manual) restarts the countdown, so a manual click
@@ -64,7 +80,7 @@ const FeatureShowcase = () => {
     setActiveIndex((index + slides.length) % slides.length);
   };
 
-  const slide = slides[activeIndex];
+  const slide = slides[shownIndex];
 
   return (
     <section className="bg-gradient-to-b from-slate-950 via-[#0a0b0d] to-[#0a0b0d] px-6 py-16 text-white sm:px-10 sm:py-24 lg:px-16">
@@ -74,11 +90,15 @@ const FeatureShowcase = () => {
         aria-label="What Lapis Archive does"
         className="mx-auto max-w-6xl rounded-[3rem] bg-[#131419] px-6 py-10 sm:rounded-[4rem] sm:px-14 sm:py-12"
       >
-        {/* Keyed on the slide id so every change replays the entrance
-            animation on the text column and the artwork together. */}
+        {/* Keyed on the slide id so every swap replays the entrance
+            animation on the text column and the artwork together. While a
+            change is pending, the wrapper fades the old slide out first. */}
         <div
           key={slide.id}
-          className="grid gap-8 md:grid-cols-2 md:items-center md:gap-16"
+          className={cn(
+            "grid gap-8 md:grid-cols-2 md:items-center md:gap-16",
+            isLeaving && "animate-fade-out",
+          )}
         >
           <div className="flex animate-rise-in flex-col items-start">
             <h2 className="mb-5 text-4xl font-bold leading-[1.05] sm:text-5xl">

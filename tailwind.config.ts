@@ -135,6 +135,12 @@ const config = {
           "0%": { opacity: "0", transform: "scale(0.94)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
+        // Counterpart to rise-in: the outgoing slide drifts up and fades
+        // instead of vanishing the instant the next one is requested.
+        "fade-out": {
+          "0%": { opacity: "1", transform: "translateY(0)" },
+          "100%": { opacity: "0", transform: "translateY(-16px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -143,6 +149,7 @@ const config = {
         "menu-open": "menu-open 0.55s cubic-bezier(0.22, 1, 0.36, 1) both",
         "rise-in": "rise-in 1.5s cubic-bezier(0.22, 1, 0.36, 1) both",
         "pop-in": "pop-in 1.2s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "fade-out": "fade-out 0.7s cubic-bezier(0.4, 0, 1, 1) both",
       },
     },
   },
