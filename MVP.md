@@ -1,33 +1,16 @@
-Lapis Archive - MVP Tracker
+Lapis Archive
 
-Formatting rules for this file
-- plain text and "-" bullet points only, nothing else
-- no headers, no bold or italics, no tables, no nested formatting
-- mark each item done or not done, keep it short, update in place as things change
+What it is
+A free way to move a file from one device to another. You upload a file with no account, get a link and an access code, and send both to whoever needs it. They open the link, enter the code, and download. Files move straight between the browser and storage, so they never pass through our server.
 
-Core MVP loop: anyone can upload a file for free, no account needed. Sharing it (getting the public link and access code) asks for the sharer's email first. The recipient enters the code on a public page and downloads the file.
+The core loop
+Anyone can upload for free, no sign-up. Creating a share asks for the sharer's email first, which is optional and never blocks the link, then hands back a public link and an access code. The recipient enters the code on a public page and downloads.
 
-Done
-- upload a file, open to anyone, no signup required, via presigned PUT straight to the bucket (bytes never touch the server)
-- generate a share link and one-time access code for a file, stored server side (works across devices, not just the creating browser)
-- recipient enters the code on a public page and downloads the file via a presigned URL
-- share history and revoke for signed-in users (backend GET /shares and DELETE /shares/:slug, owner-scoped)
-- Email OTP sign-in (Supabase, plain fetch, paste-friendly code entry), no passwords
-- expired shares are purged server side by a background worker, each deletion recorded in an audit trail
-- marketing landing page at / with a big "Upload something" CTA that goes straight to /dashboard, not signup
-- dashboard page at /dashboard; uploads are tracked per-browser in localStorage (the backend no longer lists the bucket)
-- optional sharer email captured on share (owner_email), never blocks link creation, not called signup
-- responsive on mobile, tablet, desktop
-- honesty pass: removed the fake demo/admin sign-in and the /admin dead link, corrected "emailed to" wording (nothing is emailed), split 404 vs transient errors on the redeem page
+What's live
+Open uploads over presigned URLs. Server-side shares that work on any device, not just the one that made them. The public unlock-and-download page. History and revoke for signed-in users. Passwordless email sign-in. A background worker that deletes expired shares and logs each deletion. The landing page points people straight at uploading, and the whole app works on mobile, tablet, and desktop.
 
-Not done, deferred on purpose
-- real email sending (Resend's free tier is a cheap path if we revisit; needs a backend integration and a Resend account)
-- account page showing the signed-in user's email + their shares (history/revoke API exists; the page itself is next)
+What's next
+Real email delivery of the access code, so we send it for you instead of you copying it yourself. A signed-in account page for your email and your shares; the API is ready, the page is not. Still to decide: rewriting the landing page's motivation copy with the real reason we built this, and swapping the placeholder graphics for real screenshots.
 
-Not done, needs a decision
-- personalize the landing page's platform statement paragraph with the real motivation for building this
-- replace the PlaceholderImage placeholders on the landing page with real screenshots or graphics once available
-
-Requires configuration to run end to end
-- Email OTP needs NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY set; until then sign-in surfaces "Login isn't configured yet"
-- the backend needs DATABASE_URL (shares) and AUTH_JWKS_URL (verify OTP tokens); without a DB the share endpoints return a 503 maintenance message
+Running it end to end
+Email sign-in needs the Supabase URL and publishable key set, or it shows "login isn't configured yet." The backend needs a database and the auth JWKS URL; without a database, the share endpoints return a 503 maintenance message.
