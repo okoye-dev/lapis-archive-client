@@ -53,6 +53,10 @@ interface UnlockResponseBody {
   file_size: number;
 }
 
+interface ListSharesResponseBody {
+  shares: ShareMetaResponseBody[];
+}
+
 export const createShare = async (
   input: CreateShareInput,
 ): Promise<CreatedShare> => {
@@ -86,6 +90,24 @@ export const getShare = async (slug: string): Promise<ShareMeta> => {
     expiresAt: body.expires_at,
     expired: body.expired,
   };
+};
+
+// The signed-in owner's share history. Goes through apiService, which attaches
+// the bearer token so the backend can scope it to the current user.
+export const listMyShares = async (): Promise<ShareMeta[]> => {
+  const body = await apiService.get<ListSharesResponseBody>("/shares");
+
+  return (body.shares || []).map((share) => ({
+    slug: share.slug,
+    fileName: share.file_name,
+    fileSize: share.file_size,
+    expiresAt: share.expires_at,
+    expired: share.expired,
+  }));
+};
+
+export const revokeShare = async (slug: string): Promise<void> => {
+  await apiService.delete<void>("/shares/:slug", { params: { slug } });
 };
 
 export const unlockShare = async (

@@ -19,20 +19,20 @@ import { useToast } from "@/hooks/useToast";
 import { useFormatDate as formatDate } from "@/hooks/useFormatDate";
 import { useShareStore } from "@/store/shareStore";
 import { cn, softSurface } from "@/lib/utils";
-import type { FileData } from "@/api/files";
+import type { UploadRecord } from "@/store/uploadsStore";
 import type { CreatedShare } from "@/api/shares";
 import { DownloadCloud, Share2, UploadCloud } from "lucide-react";
 import { formatFileSize } from "@/utils/formatFileSize";
 
 const Dashboard = () => {
-  const { files, loading, error, uploading, uploadMultipleFiles, downloadFile } = useFiles();
+  const { files, uploading, uploadMultipleFiles, downloadFile } = useFiles();
   const { toast } = useToast();
   const createShare = useShareStore((state) => state.createShare);
   const shares = useShareStore((state) => state.shares);
   const sharerEmail = useShareStore((state) => state.sharerEmail);
   const setSharerEmail = useShareStore((state) => state.setSharerEmail);
 
-  const [shareFile, setShareFile] = useState<FileData | null>(null);
+  const [shareFile, setShareFile] = useState<UploadRecord | null>(null);
   const [gateEmail, setGateEmail] = useState("");
   const [shareEmail, setShareEmail] = useState("");
   const [shareResult, setShareResult] = useState<CreatedShare | null>(null);
@@ -57,7 +57,7 @@ const Dashboard = () => {
     event.target.value = '';
   };
 
-  const openShareDialog = (file: FileData) => {
+  const openShareDialog = (file: UploadRecord) => {
     setShareFile(file);
     // Prefill with the sharer's email if we've already collected one.
     setGateEmail(sharerEmail ?? "");
@@ -85,7 +85,7 @@ const Dashboard = () => {
     try {
       const share = await createShare({
         fileName: shareFile.name,
-        storageKey: shareFile.storage_key,
+        storageKey: shareFile.storageKey,
         fileSize: shareFile.size,
         recipientEmail: shareEmail || undefined,
       });
@@ -135,12 +135,6 @@ const Dashboard = () => {
           </div>
 
           <Card className="p-4 sm:p-8">
-            {error && (
-              <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                Couldn't load your files: {error}
-              </div>
-            )}
-
             <div className={cn(softSurface.primary, "border-dashed p-6 text-center sm:p-12")}>
               <UploadCloud className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
               <p className="mb-1 text-base font-medium text-foreground sm:text-lg">
@@ -163,19 +157,13 @@ const Dashboard = () => {
               </label>
             </div>
 
-            {loading && files.length === 0 && !error && (
-              <p className="mt-6 text-center text-sm text-muted-foreground">
-                Loading your files...
-              </p>
-            )}
-
-            {!loading && !error && files.length === 0 && (
+            {hasMounted && files.length === 0 && (
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 No files yet. Upload one and it will show up here.
               </p>
             )}
 
-            {files.length > 0 && (
+            {hasMounted && files.length > 0 && (
               <div className="mt-6">
                 <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                   Uploaded Files
@@ -199,7 +187,7 @@ const Dashboard = () => {
                           <Share2 className="h-4 w-4" />
                         </Button>
                         <Button
-                          onClick={() => downloadFile(file.storage_key)}
+                          onClick={() => downloadFile(file.storageKey)}
                           variant="outline"
                           size="icon"
                           aria-label="Download"

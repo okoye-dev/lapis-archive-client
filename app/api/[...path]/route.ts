@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // Backend configuration - use existing env vars
 const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:6060';
 const REQUEST_TIMEOUT = 30000; // 30 seconds
+// Only small JSON flows through this proxy now — uploads/downloads go direct
+// to the bucket via presigned URLs — so anything bigger is refused up front.
+const MAX_BODY_BYTES = 1_048_576; // 1 MB
 
 export async function GET(
   request: NextRequest,
@@ -38,16 +41,39 @@ async function proxyRequest(
   method: string
 ) {
   try {
+    // Reject oversized bodies before reading them. We can only trust
+    // content-length as a hint, but it catches the obvious cases cheaply.
+    const contentLength = request.headers.get('content-length');
+    if (contentLength && Number(contentLength) > MAX_BODY_BYTES) {
+      return NextResponse.json(
+        { error: 'Request body too large' },
+        { status: 413 }
+      );
+    }
+
     // Build the target URL
     const path = pathSegments.join('/');
     const searchParams = request.nextUrl.searchParams.toString();
     const queryString = searchParams ? `?${searchParams}` : '';
     const url = `${BACKEND_URL}/api/${path}${queryString}`;
-    
+
     // Prepare headers - exclude problematic ones
     const headers: Record<string, string> = {};
-    const excludeHeaders = ['host', 'content-length', 'connection', 'upgrade'];
-    
+    // Strip hop-by-hop headers plus client-supplied forwarding headers so a
+    // caller can't spoof their origin IP or the perceived host/proto to the
+    // backend — only our own infrastructure should set those.
+    const excludeHeaders = [
+      'host',
+      'content-length',
+      'connection',
+      'upgrade',
+      'x-forwarded-for',
+      'x-forwarded-host',
+      'x-forwarded-proto',
+      'forwarded',
+      'x-real-ip',
+    ];
+
     request.headers.forEach((value, key) => {
       if (!excludeHeaders.includes(key.toLowerCase())) {
         headers[key] = value;

@@ -7,10 +7,6 @@ export interface FileData {
   size: number;
 }
 
-interface FilesResponse {
-  files: FileData[];
-}
-
 interface PresignUploadResponse {
   upload_url: string;
   storage_key: string;
@@ -18,11 +14,6 @@ interface PresignUploadResponse {
   name: string;
   expires_in: number;
 }
-
-export const getFiles = async (): Promise<FileData[]> => {
-  const response = await apiService.get<FilesResponse>("/files");
-  return response.files || [];
-};
 
 // Two-step upload: ask the backend for a presigned PUT URL, then send the
 // bytes straight to the bucket. The file never passes through our server.

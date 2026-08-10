@@ -41,12 +41,12 @@ class ApiService {
   }
 
   private getHeaders(): Record<string, string> {
-    const user = useAuthStore.getState().user;
+    const token = useAuthStore.getState().getAccessToken();
     const headers: Record<string, string> = { ...this.defaultHeaders };
     // Only send Authorization when a real token exists — otherwise we'd send
     // "Bearer undefined", which the backend rejects.
-    if (user?.access_token) {
-      headers.Authorization = `Bearer ${user.access_token}`;
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
     return headers;
   }
@@ -75,39 +75,19 @@ class ApiService {
     options?: RequestOptions
   ): Promise<T> {
     const url = this.formatUrl(path, options);
-    let headers = { ...this.getHeaders(), ...options?.headers };
+    const headers = { ...this.getHeaders(), ...options?.headers };
 
-    let response = await fetch(url, {
+    const response = await fetch(url, {
       method,
       headers,
       body: options?.body ? JSON.stringify(options.body) : undefined,
     });
 
-    // Handle 401 Unauthorized - token refresh
+    // A 401 means the token is missing or expired. We don't refresh — clear
+    // the session so the UI can prompt a fresh sign-in, then surface the error
+    // through the generic handler below.
     if (response.status === 401) {
-      try {
-        const refreshSuccess = await useAuthStore.getState().refreshToken();
-
-        if (refreshSuccess) {
-          // Retry the original request with new token
-          const retryResponse = await fetch(url, {
-            method,
-            headers: {
-              ...this.getHeaders(),
-              ...options?.headers,
-            },
-            body: options?.body ? JSON.stringify(options.body) : undefined,
-          });
-          return await retryResponse.json();
-        } else {
-          // Token refresh failed, user will be signed out
-          useAuthStore.getState().signOut();
-          throw new Error("Authentication failed");
-        }
-      } catch (refreshError) {
-        useAuthStore.getState().signOut();
-        throw new Error("Authentication failed");
-      }
+      useAuthStore.getState().signOut();
     }
 
     if (!response.ok) {

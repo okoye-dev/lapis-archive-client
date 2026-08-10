@@ -1,132 +1,18 @@
 "use client";
 
-import type { FormEvent } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/useToast";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+// Signing up and signing in are the same passwordless Email OTP flow now, so
+// /signup just forwards to /signin (kept so existing links don't 404).
 const SignUp = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { toast } = useToast();
   const router = useRouter();
 
-  const handleSignUp = (e: FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    router.replace("/signin");
+  }, [router]);
 
-    // Dummy authentication logic
-    if (firstName && lastName && email && password) {
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userRole", "user");
-      localStorage.setItem("userEmail", email);
-      localStorage.setItem("userFirstName", firstName);
-      localStorage.setItem("userLastName", lastName);
-
-      toast({
-        title: "Account created!",
-        description: "Welcome in. Lovely to have you here.",
-      });
-
-      router.push("/dashboard");
-    } else {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-    }
-  };
-
-  return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-md p-6 sm:p-8">
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-xl font-semibold text-foreground">
-            Create Account
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            A minute of setup, then sharing files gets easy.
-          </p>
-        </div>
-
-        <form onSubmit={handleSignUp} className="space-y-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input
-                id="firstName"
-                type="text"
-                placeholder="Jane"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                type="text"
-                placeholder="Doe"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="user@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Create a password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <Button type="submit" className="w-full">
-            Create Account
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Button
-              variant="link"
-              className="h-auto p-0"
-              onClick={() => router.push("/signin")}
-            >
-              Sign In
-            </Button>
-          </p>
-        </div>
-      </Card>
-    </div>
-  );
+  return null;
 };
 
 export default SignUp;

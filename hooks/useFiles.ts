@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import { getFiles, uploadFile, downloadFile, FileData } from "@/api/files";
+import { useState, useCallback } from "react";
+import { uploadFile, downloadFile, FileData } from "@/api/files";
+import { useUploadsStore } from "@/store/uploadsStore";
 import { useToast } from "./useToast";
 
 // Client-side upload cap. Matches the backend MAX_UPLOAD_MB default so we can
@@ -8,29 +9,13 @@ export const MAX_UPLOAD_MB = 512;
 export const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
 
 export const useFiles = () => {
-  const [files, setFiles] = useState<FileData[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // The list is no longer fetched — the backend dropped GET /files. Instead we
+  // read what this browser uploaded from a persisted store.
+  const files = useUploadsStore((state) => state.uploads);
+  const addUpload = useUploadsStore((state) => state.addUpload);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
-
-  const fetchFiles = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await getFiles();
-      setFiles(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchFiles();
-  }, []);
 
   const uploadMultipleFiles = useCallback(async (fileList: File[]): Promise<FileData[]> => {
     let isUploading = true;
@@ -81,6 +66,13 @@ export const useFiles = () => {
             });
           });
           uploadedFiles.push(uploadedFile);
+          // Remember it locally so it shows on the dashboard across reloads.
+          addUpload({
+            id: uploadedFile.id,
+            name: uploadedFile.name,
+            storageKey: uploadedFile.storage_key,
+            size: uploadedFile.size,
+          });
         } catch (err) {
           console.error(`Failed to upload ${file.name}:`, err);
           failures.push({
@@ -121,17 +113,13 @@ export const useFiles = () => {
         });
       }
 
-      if (uploadedFiles.length > 0) {
-        await fetchFiles();
-      }
-
       return uploadedFiles;
     } finally {
       isUploading = false;
       setUploading(false);
       setUploadProgress(0);
     }
-  }, [fetchFiles, toast]);
+  }, [addUpload, toast]);
 
   const handleDownload = useCallback(async (fileName: string) => {
     try {
@@ -152,11 +140,8 @@ export const useFiles = () => {
 
   return {
     files,
-    loading,
-    error,
     uploading,
     uploadProgress,
-    refetchFiles: fetchFiles,
     uploadMultipleFiles,
     downloadFile: handleDownload,
   };
