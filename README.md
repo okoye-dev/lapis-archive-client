@@ -14,7 +14,8 @@ The anonymous quick-share flow is the working product:
 | Create a share → link + one-time access code | ✅ working |
 | Recipient unlock page (`/share/<slug>`) → download | ✅ working |
 | Marketing landing page | ✅ working (some placeholder art) |
-| Accounts / login / cross-device history | 🟡 planned (Email OTP); the current Sign In/Sign Up screens are non-functional scaffolding |
+| Email-OTP sign-in | ✅ working (needs Supabase env set) |
+| Signed-in account page (email + shares) | 🟡 planned; the history/revoke API is wired |
 
 ## How it works
 
@@ -42,10 +43,10 @@ Set in `.env.local` (see `env.example`):
 
 | Variable | Purpose |
 | --- | --- |
-| `NEXT_PUBLIC_DEV_SERVER_URL` | Backend base URL in development |
-| `NEXT_PUBLIC_APP_SERVER_URL` | Backend base URL in production |
-| `NEXT_PUBLIC_SUPABASE_URL` | Auth provider URL (for the planned Email-OTP login) |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser-safe publishable key (planned login) |
+| `BACKEND_URL` | Where the Next proxy forwards (the file service); server-side only |
+| `NEXT_PUBLIC_API_URL` | Optional client base path; defaults to `/api/v1` (via the proxy) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL for Email-OTP sign-in |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser-safe publishable key |
 
 Requests to the backend go through a Next.js route handler (`app/api/[...path]`) that proxies to the service, so the browser only ever calls same-origin `/api/v1/...`.
 
@@ -77,7 +78,7 @@ hooks/             useFiles, useToast, ...
 
 ## Roadmap
 
-- Email-OTP login and real cross-device share history
+- Signed-in account page (email + share history + revoke)
 - Replace placeholder landing visuals with screenshots of the real flow
 - Per-file upload error reporting and a pre-upload size check
 - Revoke action for created shares
