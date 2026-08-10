@@ -26,15 +26,15 @@ const CreatorSection = () => {
           </h2>
 
           <p className="mb-4 max-w-md text-base text-muted-foreground sm:text-lg">
-            Hi, I'm the person behind Lapis Archive. I used to move files
+            Hi, I&apos;m the person behind Lapis Archive. I used to move files
             around with WeTransfer, until one day it tucked everything
             behind a subscription and sending a single file started to
             feel like a negotiation.
           </p>
           <p className="mb-8 max-w-md text-base text-muted-foreground sm:text-lg">
             So I made this instead: a fun little tool for getting files
-            between devices that refuse to talk to each other. It's open
-            source, and I'd love to hear what you think of it.
+            between devices that refuse to talk to each other. It&apos;s open
+            source, and I&apos;d love to hear what you think of it.
           </p>
 
           <a

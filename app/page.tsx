@@ -156,7 +156,7 @@ const Home = () => {
             <p className="max-w-md text-base text-slate-400">
               This started as a way to fling files between devices that
               refuse to talk to each other. Phone to laptop, work machine
-              to home machine, your computer to your friend's. Upload, get
+              to home machine, your computer to your friend&apos;s. Upload, get
               a code, send the code. Done.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
