@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useParams } from "next/navigation";
 import { DownloadCloud, File as FileIcon } from "lucide-react";
@@ -10,63 +10,94 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/useToast";
-import { useShareStore } from "@/store/shareStore";
-import { downloadFile } from "@/api/files";
+import { getShare, unlockShare, type ShareMeta } from "@/api/shares";
+import { ApiError } from "@/api/api-service";
+import { triggerBrowserDownload } from "@/api/files";
 import { formatFileSize } from "@/utils/formatFileSize";
+
+type Status = "loading" | "ready" | "not-found" | "expired" | "error";
 
 const SharePage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
-  const share = useShareStore((state) => state.getShareBySlug(slug));
-  const recordAccess = useShareStore((state) => state.recordAccess);
 
+  const [status, setStatus] = useState<Status>("loading");
+  const [meta, setMeta] = useState<ShareMeta | null>(null);
   const [code, setCode] = useState("");
   const [unlocked, setUnlocked] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [unlocking, setUnlocking] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  // The share store persists to localStorage, which isn't available during
-  // server rendering. Rendering based on `share` before the client has
-  // mounted would make the server's "not found" HTML mismatch whatever the
-  // client renders once localStorage data is available, so we wait one
-  // extra render before trusting the store's data.
-  const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  const handleUnlock = (e: FormEvent) => {
-    e.preventDefault();
-    if (!share) return;
-
-    if (code.trim().toUpperCase() === share.accessCode) {
-      setUnlocked(true);
-      recordAccess(share.slug);
-    } else {
-      toast({
-        title: "Incorrect code",
-        description: "That access code doesn't match this link.",
-        variant: "destructive",
+    let active = true;
+    setStatus("loading");
+    getShare(slug)
+      .then((share) => {
+        if (!active) return;
+        setMeta(share);
+        setStatus(share.expired ? "expired" : "ready");
+      })
+      .catch((err) => {
+        if (!active) return;
+        // A real 404 means the share is gone or expired. Anything else
+        // (network hiccup, 5xx) is transient — let the visitor retry.
+        if (err instanceof ApiError && err.status === 404) {
+          setStatus("not-found");
+        } else {
+          setStatus("error");
+        }
       });
-    }
-  };
+    return () => {
+      active = false;
+    };
+  }, [slug, reloadKey]);
 
-  const handleDownload = async () => {
-    if (!share) return;
+  const handleUnlock = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault();
+      if (unlocking || !code.trim()) return;
+
+      setUnlocking(true);
+      try {
+        const result = await unlockShare(slug, code.trim(), true);
+        setUnlocked(true);
+        triggerBrowserDownload(result.url, result.fileName);
+        toast({
+          title: "Unlocked",
+          description: "Your download should be starting.",
+        });
+      } catch (err) {
+        toast({
+          title: "Couldn't unlock",
+          description: err instanceof Error ? err.message : "Try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setUnlocking(false);
+      }
+    },
+    [slug, code, unlocking, toast],
+  );
+
+  const handleDownloadAgain = useCallback(async () => {
+    if (downloading) return;
     setDownloading(true);
     try {
-      await downloadFile(share.storageKey);
-    } catch {
+      const result = await unlockShare(slug, code.trim(), true);
+      triggerBrowserDownload(result.url, result.fileName);
+    } catch (err) {
       toast({
         title: "Download failed",
-        description: "Couldn't reach the file server. Try again shortly.",
+        description: err instanceof Error ? err.message : "Try again.",
         variant: "destructive",
       });
     } finally {
       setDownloading(false);
     }
-  };
+  }, [slug, code, downloading, toast]);
 
-  if (!hasMounted) {
+  if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <Card className="w-full max-w-md p-6 text-center sm:p-8">
@@ -76,7 +107,7 @@ const SharePage = () => {
     );
   }
 
-  if (!share) {
+  if (status === "not-found") {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <Card className="w-full max-w-md p-6 text-center sm:p-8">
@@ -84,8 +115,39 @@ const SharePage = () => {
             Link not found
           </h1>
           <p className="text-sm text-muted-foreground">
-            This share link is invalid, expired, or was created in a
-            different browser.
+            This share link is invalid or has expired.
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <Card className="w-full max-w-md p-6 text-center sm:p-8">
+          <h1 className="mb-2 text-xl font-semibold text-foreground">
+            Couldn&apos;t load this share
+          </h1>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Something went wrong reaching the server. This usually clears up on
+            its own — try again.
+          </p>
+          <Button onClick={() => setReloadKey((k) => k + 1)}>Retry</Button>
+        </Card>
+      </div>
+    );
+  }
+
+  if (status === "expired") {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <Card className="w-full max-w-md p-6 text-center sm:p-8">
+          <h1 className="mb-2 text-xl font-semibold text-foreground">
+            This share has expired
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Ask the sender to share {meta?.fileName ?? "the file"} again.
           </p>
         </Card>
       </div>
@@ -106,6 +168,16 @@ const SharePage = () => {
           </p>
         </div>
 
+        <div className="mb-6 flex items-center gap-3 rounded-lg border border-border p-4">
+          <FileIcon className="h-8 w-8 text-muted-foreground" />
+          <div className="flex-1 overflow-hidden">
+            <p className="truncate text-sm font-medium">{meta?.fileName}</p>
+            <p className="text-xs text-muted-foreground">
+              {meta ? formatFileSize(meta.fileSize) : ""}
+            </p>
+          </div>
+        </div>
+
         {!unlocked ? (
           <form onSubmit={handleUnlock} className="space-y-4">
             <div className="space-y-2">
@@ -120,32 +192,19 @@ const SharePage = () => {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
-              Unlock file
+            <Button type="submit" className="w-full" disabled={unlocking}>
+              {unlocking ? "Unlocking..." : "Unlock file"}
             </Button>
           </form>
         ) : (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 rounded-lg border border-border p-4">
-              <FileIcon className="h-8 w-8 text-muted-foreground" />
-              <div className="flex-1 overflow-hidden">
-                <p className="truncate text-sm font-medium">
-                  {share.fileName}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {formatFileSize(share.fileSize)}
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={handleDownload}
-              disabled={downloading}
-              className="w-full"
-            >
-              <DownloadCloud className="mr-2 h-4 w-4" />
-              {downloading ? "Preparing download..." : "Download file"}
-            </Button>
-          </div>
+          <Button
+            onClick={handleDownloadAgain}
+            disabled={downloading}
+            className="w-full"
+          >
+            <DownloadCloud className="mr-2 h-4 w-4" />
+            {downloading ? "Preparing download..." : "Download again"}
+          </Button>
         )}
       </Card>
     </div>

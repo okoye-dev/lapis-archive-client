@@ -1,15 +1,22 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { LinkData } from "@/types/types";
+import {
+  createShare as createShareApi,
+  type CreatedShare,
+} from "@/api/shares";
 
-// No 0/O/1/I — avoids characters that are easy to misread when typed by hand.
-const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-const SLUG_ALPHABET = "abcdefghijkmnpqrstuvwxyz23456789";
-
-function randomString(length: number, alphabet: string): string {
-  const values = new Uint32Array(length);
-  crypto.getRandomValues(values);
-  return Array.from(values, (n) => alphabet[n % alphabet.length]).join("");
+// A single share the sharer created, remembered locally for the dashboard
+// history. The access code is deliberately NOT stored: the backend only
+// keeps it hashed and shows it once, so a lost code means re-sharing.
+export interface ShareRecord {
+  slug: string;
+  link: string;
+  fileName: string;
+  fileSize: number;
+  storageKey: string;
+  recipientEmail?: string;
+  createdAt: string;
+  expiresAt: string;
 }
 
 interface CreateShareInput {
@@ -20,12 +27,10 @@ interface CreateShareInput {
 }
 
 interface ShareState {
-  shares: LinkData[];
+  shares: ShareRecord[];
   sharerEmail: string | null;
   setSharerEmail: (email: string) => void;
-  createShare: (input: CreateShareInput) => LinkData;
-  getShareBySlug: (slug: string) => LinkData | undefined;
-  recordAccess: (slug: string) => void;
+  createShare: (input: CreateShareInput) => Promise<CreatedShare>;
 }
 
 export const useShareStore = create<ShareState>()(
@@ -36,35 +41,26 @@ export const useShareStore = create<ShareState>()(
 
       setSharerEmail: (email) => set({ sharerEmail: email }),
 
-      createShare: ({ fileName, storageKey, fileSize, recipientEmail }) => {
-        const now = new Date().toISOString();
-        const slug = randomString(8, SLUG_ALPHABET);
-
-        const share: LinkData = {
-          slug,
-          link: `${window.location.origin}/share/${slug}`,
-          accessCode: randomString(6, CODE_ALPHABET),
-          recipientEmail,
-          fileName,
+      createShare: async ({ fileName, storageKey, fileSize, recipientEmail }) => {
+        const created = await createShareApi({
           storageKey,
-          fileSize,
-          date: now,
-          clicks: 0,
-          createdAt: now,
+          ownerEmail: get().sharerEmail ?? undefined,
+          recipientEmail,
+        });
+
+        const record: ShareRecord = {
+          slug: created.slug,
+          link: `${window.location.origin}/share/${created.slug}`,
+          fileName: created.fileName || fileName,
+          fileSize: created.fileSize || fileSize,
+          storageKey,
+          recipientEmail,
+          createdAt: new Date().toISOString(),
+          expiresAt: created.expiresAt,
         };
 
-        set({ shares: [share, ...get().shares] });
-        return share;
-      },
-
-      getShareBySlug: (slug) => get().shares.find((share) => share.slug === slug),
-
-      recordAccess: (slug) => {
-        set({
-          shares: get().shares.map((share) =>
-            share.slug === slug ? { ...share, clicks: share.clicks + 1 } : share,
-          ),
-        });
+        set({ shares: [record, ...get().shares] });
+        return created;
       },
     }),
     { name: "share-storage" },

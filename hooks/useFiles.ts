@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { getFiles, uploadFiles, downloadFile, FileData } from "@/api/files";
+import { getFiles, uploadFile, downloadFile, FileData } from "@/api/files";
 import { useToast } from "./useToast";
+
+// Client-side upload cap. Matches the backend MAX_UPLOAD_MB default so we can
+// reject oversized files before wasting a round-trip.
+export const MAX_UPLOAD_MB = 512;
+export const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
 
 export const useFiles = () => {
   const [files, setFiles] = useState<FileData[]>([]);
@@ -29,12 +34,13 @@ export const useFiles = () => {
 
   const uploadMultipleFiles = useCallback(async (fileList: File[]): Promise<FileData[]> => {
     let isUploading = true;
-    
+    const uploadedFiles: FileData[] = [];
+    const failures: { name: string; reason: string }[] = [];
+
     try {
       setUploading(true);
       setUploadProgress(0);
-      const uploadedFiles: FileData[] = [];
-      
+
       // Show initial toast (non-dismissible during upload)
       const progressToast = toast({
         title: "Uploading files...",
@@ -47,48 +53,81 @@ export const useFiles = () => {
           }
         },
       });
-      
+
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
-        const formData = new FormData();
-        formData.append("file", file);
-        
-        const uploadedFile = await uploadFiles(formData, (progress) => {
-          const fileProgress = (i / fileList.length) * 100 + (progress / fileList.length);
-          const totalProgress = Math.round(fileProgress);
-          setUploadProgress(totalProgress);
-          
-          // Update toast with progress
-          progressToast.update({
-            id: progressToast.id,
-            title: "Uploading files...",
-            description: `${totalProgress}% complete`,
+
+        // Reject oversized files up front instead of failing mid-upload.
+        if (file.size > MAX_UPLOAD_BYTES) {
+          failures.push({
+            name: file.name,
+            reason: `over the ${MAX_UPLOAD_MB} MB limit`,
           });
-        });
-        uploadedFiles.push(uploadedFile);
+          continue;
+        }
+
+        // Upload files independently so one bad file doesn't sink the batch.
+        try {
+          const uploadedFile = await uploadFile(file, (progress) => {
+            const fileProgress = (i / fileList.length) * 100 + (progress / fileList.length);
+            const totalProgress = Math.round(fileProgress);
+            setUploadProgress(totalProgress);
+
+            // Update toast with progress
+            progressToast.update({
+              id: progressToast.id,
+              title: "Uploading files...",
+              description: `${totalProgress}% complete`,
+            });
+          });
+          uploadedFiles.push(uploadedFile);
+        } catch (err) {
+          console.error(`Failed to upload ${file.name}:`, err);
+          failures.push({
+            name: file.name,
+            reason: err instanceof Error ? err.message : "upload failed",
+          });
+        }
       }
 
-      // Mark upload as complete and show success toast
+      // Mark upload as complete and report per-file outcome.
       isUploading = false;
-      progressToast.update({
-        id: progressToast.id,
-        title: "Upload complete! 🎉",
-        description: `Successfully uploaded ${fileList.length} file${fileList.length > 1 ? 's' : ''}`,
-        onOpenChange: undefined, // Allow dismissal after completion
-      });
 
-      await fetchFiles();
+      if (failures.length === 0) {
+        progressToast.update({
+          id: progressToast.id,
+          title: "Upload complete! 🎉",
+          description: `Successfully uploaded ${uploadedFiles.length} file${uploadedFiles.length === 1 ? "" : "s"}`,
+          onOpenChange: undefined, // Allow dismissal after completion
+        });
+      } else if (uploadedFiles.length === 0) {
+        progressToast.update({
+          id: progressToast.id,
+          title: "Upload failed",
+          description:
+            failures.length === 1
+              ? `${failures[0].name} — ${failures[0].reason}.`
+              : `None of the ${failures.length} files could be uploaded.`,
+          variant: "destructive",
+          onOpenChange: undefined,
+        });
+      } else {
+        progressToast.update({
+          id: progressToast.id,
+          title: `Uploaded ${uploadedFiles.length} of ${fileList.length} files`,
+          description: `Skipped: ${failures.map((f) => `${f.name} (${f.reason})`).join(", ")}`,
+          variant: "destructive",
+          onOpenChange: undefined,
+        });
+      }
+
+      if (uploadedFiles.length > 0) {
+        await fetchFiles();
+      }
+
       return uploadedFiles;
-    } catch (err) {
-      console.error("Failed to upload files:", err);
-      isUploading = false;
-      toast({
-        title: "Upload failed",
-        description: "Failed to upload files. Please try again.",
-        variant: "destructive",
-      });
-      return [];
     } finally {
+      isUploading = false;
       setUploading(false);
       setUploadProgress(0);
     }

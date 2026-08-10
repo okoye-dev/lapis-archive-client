@@ -12,6 +12,18 @@ export const getApiBaseUrl = () => {
   return process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 };
 
+// Error thrown for non-OK HTTP responses. Carries the status code so callers
+// can tell a real 404 apart from a transient/server failure.
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 class ApiService {
   private apiPath: string;
   private defaultHeaders: Record<string, string>;
@@ -30,10 +42,13 @@ class ApiService {
 
   private getHeaders(): Record<string, string> {
     const user = useAuthStore.getState().user;
-    return {
-      ...this.defaultHeaders,
-      Authorization: `Bearer ${user?.access_token}`,
-    };
+    const headers: Record<string, string> = { ...this.defaultHeaders };
+    // Only send Authorization when a real token exists — otherwise we'd send
+    // "Bearer undefined", which the backend rejects.
+    if (user?.access_token) {
+      headers.Authorization = `Bearer ${user.access_token}`;
+    }
+    return headers;
   }
 
   private formatUrl(path: string, options?: RequestOptions): string {
@@ -110,7 +125,7 @@ class ApiService {
         // If we can't parse the error response, use the default message
       }
 
-      throw new Error(errorMessage);
+      throw new ApiError(response.status, errorMessage);
     }
 
     const data = await response.json();

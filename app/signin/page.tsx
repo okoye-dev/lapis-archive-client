@@ -18,25 +18,18 @@ const SignIn = () => {
   const handleSignIn = (e: FormEvent) => {
     e.preventDefault();
 
-    // Dummy authentication logic
+    // Placeholder sign-in until real Email OTP login is wired up.
     if (email && password) {
       localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem(
-        "userRole",
-        email === "admin@example.com" ? "admin" : "user",
-      );
+      localStorage.setItem("userRole", "user");
       localStorage.setItem("userEmail", email);
 
       toast({
-        title: "Welcome back!",
-        description: "You're signed in. Your files are waiting.",
+        title: "Signed in",
+        description: "You're in. Head to your dashboard to upload and share.",
       });
 
-      if (email === "admin@example.com") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
-      }
+      router.push("/dashboard");
     } else {
       toast({
         title: "Error",
@@ -54,7 +47,7 @@ const SignIn = () => {
             Sign In
           </h1>
           <p className="text-sm text-muted-foreground">
-            Good to see you again. Sign in to get back to your files.
+            Sign in to upload files and create share links.
           </p>
         </div>
 
@@ -98,14 +91,6 @@ const SignIn = () => {
             >
               Sign Up
             </Button>
-          </p>
-        </div>
-
-        <div className="mt-4 rounded-lg bg-muted/30 p-3">
-          <p className="text-xs text-muted-foreground">
-            <strong>Demo:</strong> Use any email/password to sign in
-            <br />
-            <strong>Admin:</strong> admin@example.com
           </p>
         </div>
       </Card>

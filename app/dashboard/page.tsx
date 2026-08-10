@@ -20,7 +20,7 @@ import { useFormatDate as formatDate } from "@/hooks/useFormatDate";
 import { useShareStore } from "@/store/shareStore";
 import { cn, softSurface } from "@/lib/utils";
 import type { FileData } from "@/api/files";
-import type { LinkData } from "@/types/types";
+import type { CreatedShare } from "@/api/shares";
 import { DownloadCloud, Share2, UploadCloud } from "lucide-react";
 import { formatFileSize } from "@/utils/formatFileSize";
 
@@ -35,7 +35,9 @@ const Dashboard = () => {
   const [shareFile, setShareFile] = useState<FileData | null>(null);
   const [gateEmail, setGateEmail] = useState("");
   const [shareEmail, setShareEmail] = useState("");
-  const [shareResult, setShareResult] = useState<LinkData | null>(null);
+  const [shareResult, setShareResult] = useState<CreatedShare | null>(null);
+  const [shareLink, setShareLink] = useState("");
+  const [creatingShare, setCreatingShare] = useState(false);
 
   // shares comes from a localStorage-persisted store, unavailable during
   // server rendering — gate on mount so the server and the client's first
@@ -55,47 +57,54 @@ const Dashboard = () => {
     event.target.value = '';
   };
 
+  const openShareDialog = (file: FileData) => {
+    setShareFile(file);
+    // Prefill with the sharer's email if we've already collected one.
+    setGateEmail(sharerEmail ?? "");
+  };
+
   const closeShareDialog = () => {
     setShareFile(null);
     setGateEmail("");
     setShareEmail("");
     setShareResult(null);
+    setShareLink("");
   };
 
-  const handleSignUpToShare = (e: FormEvent) => {
+  const handleCreateShare = async (e: FormEvent) => {
     e.preventDefault();
-    if (!gateEmail) return;
+    if (!shareFile || creatingShare) return;
 
-    // No verification code is sent — there's no email provider wired up
-    // yet. This just registers the sharer's email locally so sharing has
-    // an identity attached to it, without requiring paid infra to do so.
-    setSharerEmail(gateEmail);
-  };
+    // Attaching your email is optional and never blocks link creation. When
+    // provided it's kept locally and sent as owner_email. No email is sent.
+    if (gateEmail.trim()) {
+      setSharerEmail(gateEmail.trim());
+    }
 
-  const handleCreateShare = (e: FormEvent) => {
-    e.preventDefault();
-    if (!shareFile) return;
-
-    const share = createShare({
-      fileName: shareFile.name,
-      storageKey: shareFile.storage_key,
-      fileSize: shareFile.size,
-      recipientEmail: shareEmail || undefined,
-    });
-    setShareResult(share);
-
-    if (shareEmail) {
-      // Sending isn't wired up to a real email provider yet — this
-      // simulates it so the flow is demoable end to end.
-      toast({
-        title: "Code emailed",
-        description: `Sent the access code and link to ${shareEmail}.`,
+    setCreatingShare(true);
+    try {
+      const share = await createShare({
+        fileName: shareFile.name,
+        storageKey: shareFile.storage_key,
+        fileSize: shareFile.size,
+        recipientEmail: shareEmail || undefined,
       });
-    } else {
+      setShareResult(share);
+      setShareLink(`${window.location.origin}/share/${share.slug}`);
+
       toast({
-        title: "Link generated",
-        description: "Copy the link and code below to share them yourself.",
+        title: "Link ready",
+        description:
+          "Copy the link and code below. The code is shown once, so grab it now.",
       });
+    } catch (err) {
+      toast({
+        title: "Couldn't create share",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setCreatingShare(false);
     }
   };
 
@@ -118,7 +127,7 @@ const Dashboard = () => {
         <div className="mx-auto max-w-2xl">
           <div className="mb-6 sm:mb-8">
             <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
-              Your Files
+              Files you&apos;ve uploaded here
             </h1>
             <p className="mt-2 text-sm text-muted-foreground sm:text-base">
               Upload a file to get a shareable link and access code for it.
@@ -177,13 +186,12 @@ const Dashboard = () => {
                       <div className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-medium text-foreground">{file.name}</span>
                         <div className="truncate text-xs text-muted-foreground">
-                          ID: {file.id}
+                          {file.size ? formatFileSize(file.size) : "Size unavailable"}
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-                        <span className="hidden text-xs text-muted-foreground sm:inline">{formatFileSize(file.size)}</span>
                         <Button
-                          onClick={() => setShareFile(file)}
+                          onClick={() => openShareDialog(file)}
                           variant="outline"
                           size="icon"
                           aria-label="Share"
@@ -211,9 +219,14 @@ const Dashboard = () => {
       {hasMounted && shares.length > 0 && (
         <section className="py-10 sm:py-16">
           <div className="mx-auto max-w-2xl">
-            <h2 className="mb-6 text-center text-2xl font-bold text-foreground sm:mb-8 sm:text-3xl">
-              Shared Links
-            </h2>
+            <div className="mb-6 text-center sm:mb-8">
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
+                Shared Links
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                This history is only saved in this browser for now.
+              </p>
+            </div>
 
             <Card className="p-4 sm:p-8">
               <div className="space-y-3">
@@ -232,43 +245,31 @@ const Dashboard = () => {
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {share.recipientEmail
-                        ? `Emailed to ${share.recipientEmail}`
-                        : "Not emailed, you shared it yourself"}
+                        ? `Recipient: ${share.recipientEmail}`
+                        : "No recipient set"}
+                      {" · expires "}
+                      {formatDate(share.expiresAt)}
                     </p>
-                    <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                      <div className="flex min-w-0 flex-1 items-center gap-2">
-                        <Input
-                          readOnly
-                          value={share.link}
-                          className="min-w-0 flex-1 text-xs"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="shrink-0"
-                          onClick={() => handleCopy(share.link)}
-                        >
-                          Copy link
-                        </Button>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-2">
-                        <Input
-                          readOnly
-                          value={share.accessCode}
-                          className="w-24 shrink-0 text-xs tracking-widest"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="shrink-0"
-                          onClick={() => handleCopy(share.accessCode)}
-                        >
-                          Copy code
-                        </Button>
-                      </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <Input
+                        readOnly
+                        value={share.link}
+                        className="min-w-0 flex-1 text-xs"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="shrink-0"
+                        onClick={() => handleCopy(share.link)}
+                      >
+                        Copy link
+                      </Button>
                     </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      The access code was shown once when you created this. It
+                      isn&apos;t stored, so re-share if you&apos;ve lost it.
+                    </p>
                   </div>
                 ))}
               </div>
@@ -283,43 +284,28 @@ const Dashboard = () => {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {sharerEmail
-                ? `Share ${shareFile?.name}`
-                : "Sign up to share this file"}
-            </DialogTitle>
+            <DialogTitle>Share {shareFile?.name}</DialogTitle>
             <DialogDescription>
-              {!sharerEmail
-                ? "Uploading is free for anyone, and files are kept for 24 hours. Add your email (no password, no code sent) to share this file and keep it for 3 days instead."
-                : shareResult
-                  ? shareResult.recipientEmail
-                    ? `Sent to ${shareResult.recipientEmail}. You can also copy the link and code yourself.`
-                    : "Copy the link and code below and share them with anyone."
-                  : "You'll get a link and an access code for this file. Emailing it is optional, you can just copy both and send them yourself."}
+              {shareResult
+                ? shareEmail
+                  ? `Recipient: ${shareEmail} — copy the link and code below and send them yourself.`
+                  : "Copy the link and code below and send them to whoever you like."
+                : "You'll get a link and a one-time access code for this file. Nothing is emailed for you — copy both and send them yourself. Adding your email is optional."}
             </DialogDescription>
           </DialogHeader>
 
-          {!sharerEmail ? (
-            <form onSubmit={handleSignUpToShare} className="space-y-4">
+          {!shareResult ? (
+            <form onSubmit={handleCreateShare} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="gateEmail">Your email</Label>
+                <Label htmlFor="ownerEmail">Your email (optional)</Label>
                 <Input
-                  id="gateEmail"
+                  id="ownerEmail"
                   type="email"
                   placeholder="you@example.com"
                   value={gateEmail}
                   onChange={(e) => setGateEmail(e.target.value)}
-                  required
                 />
               </div>
-              <DialogFooter>
-                <Button type="submit" className="w-full">
-                  Continue
-                </Button>
-              </DialogFooter>
-            </form>
-          ) : !shareResult ? (
-            <form onSubmit={handleCreateShare} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="recipientEmail">Recipient email (optional)</Label>
                 <Input
@@ -331,8 +317,8 @@ const Dashboard = () => {
                 />
               </div>
               <DialogFooter>
-                <Button type="submit" className="w-full">
-                  Generate link
+                <Button type="submit" className="w-full" disabled={creatingShare}>
+                  {creatingShare ? "Generating..." : "Generate link"}
                 </Button>
               </DialogFooter>
             </form>
@@ -341,12 +327,12 @@ const Dashboard = () => {
               <div className="space-y-2">
                 <Label>Share link</Label>
                 <div className="flex gap-2">
-                  <Input readOnly value={shareResult.link} className="min-w-0 flex-1" />
+                  <Input readOnly value={shareLink} className="min-w-0 flex-1" />
                   <Button
                     type="button"
                     variant="outline"
                     className="shrink-0"
-                    onClick={() => handleCopy(shareResult.link)}
+                    onClick={() => handleCopy(shareLink)}
                   >
                     Copy
                   </Button>
@@ -357,18 +343,21 @@ const Dashboard = () => {
                 <div className="flex gap-2">
                   <Input
                     readOnly
-                    value={shareResult.accessCode}
+                    value={shareResult.code}
                     className="min-w-0 flex-1 tracking-widest"
                   />
                   <Button
                     type="button"
                     variant="outline"
                     className="shrink-0"
-                    onClick={() => handleCopy(shareResult.accessCode)}
+                    onClick={() => handleCopy(shareResult.code)}
                   >
                     Copy
                   </Button>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Shown once. Save it now, we only keep a hashed copy.
+                </p>
               </div>
               <DialogFooter>
                 <Button
