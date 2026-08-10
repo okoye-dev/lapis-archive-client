@@ -10,7 +10,7 @@ The anonymous quick-share flow is the working product:
 
 | Feature | State |
 | --- | --- |
-| Upload (drag-and-drop, direct-to-bucket, progress) | ✅ working |
+| Upload (click-to-select, direct-to-bucket, progress) | ✅ working |
 | Create a share → link + one-time access code | ✅ working |
 | Recipient unlock page (`/share/<slug>`) → download | ✅ working |
 | Marketing landing page | ✅ working (some placeholder art) |
@@ -20,7 +20,7 @@ The anonymous quick-share flow is the working product:
 ## How it works
 
 1. **Upload** — the client asks the backend for a presigned URL and PUTs the file straight to the bucket.
-2. **Share** — it calls the backend to mint a share, which returns a slug and a one-time access code (shown once; only a hashed copy is kept).
+2. **Share** — it calls the backend to mint a share, which returns a slug and a single access code (shown once; only a hashed copy is kept).
 3. **Receive** — the recipient opens `/share/<slug>`, enters the code, and the backend returns a presigned download URL.
 
 Share history is remembered per-browser in `localStorage` for now; durable cross-device history arrives with accounts.
@@ -63,7 +63,7 @@ pnpm lint     # eslint
 
 - Next.js 14 (App Router) + TypeScript
 - Tailwind CSS, Radix UI, Lucide icons
-- Zustand for local state, React Hook Form + Zod for forms
+- Zustand for local state; forms are plain controlled React (useState)
 
 ## Project layout
 
@@ -72,7 +72,7 @@ app/               routes: landing, /dashboard, /share/[slug], /signin, /signup
   api/[...path]/   proxy to the backend
 api/               typed API clients (files, shares)
 components/        UI + landing sections
-store/             zustand stores (shares, auth)
+store/             zustand stores (uploads, shares, auth)
 hooks/             useFiles, useToast, ...
 ```
 
@@ -80,7 +80,6 @@ hooks/             useFiles, useToast, ...
 
 - Signed-in account page (email + share history + revoke)
 - Replace placeholder landing visuals with screenshots of the real flow
-- Per-file upload error reporting and a pre-upload size check
 - Revoke action for created shares
 
 ## License
