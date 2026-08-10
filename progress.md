@@ -39,3 +39,12 @@ Formatting rules for this file
 - moved the signup requirement to the share action itself: sharing a file now asks for the sharer's email first (no password, no code sent, since real email sending isn't set up), before generating a link and code
 - discussed a real gap you raised: a plain unverified email field is trivially fakeable as an anti-abuse measure. Agreed to ship it as-is for now (it's a contact channel and mild friction, not security) and treat real verification via Resend's free tier as a later, separate piece of work if it's ever needed
 - captured a new requirement: files should be kept 24 hours if not shared, 3 days if the sharer's email is on file. Not built yet, the backend's file list endpoint doesn't return an upload timestamp at all, so even the display can't be made accurate without backend changes first
+
+2026-08-10
+- backend now owns shares: moved share records from bucket-JSON to Postgres, added JWKS bearer-token auth, owner-scoped history (GET /shares) and revoke (DELETE /shares/:slug)
+- if the database is not configured the share endpoints return a 503 "under maintenance" instead of falling back
+- added an embedded migration runner that auto-applies pending migrations on boot, tracked in schema_migrations (no more manual psql)
+- added a generic background worker runner plus a purge job that deletes expired shares (object + row) and writes an audit_log entry for each, with job-run history in job_runs
+- removed the bucket-listing and delete endpoints on the backend (they leaked every uploader's files); the dashboard now tracks its own uploads in localStorage, downloads still use the capability URL GET /files/:id
+- wired the client to server-side shares and presigned uploads; replaced the fake password sign-in with real Email OTP (Supabase, plain fetch), and hardened the Next proxy (strips inbound forwarding headers, caps the body)
+- corrected this tracker: shares are server-side now, auth is wired, retention is handled by the purge worker, and the /admin dead link is gone
