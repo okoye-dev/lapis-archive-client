@@ -42,15 +42,13 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
           <>
             {children}
             <Footer />
-            <Toaster />
           </>
         ) : (
-          <div className="mx-auto max-w-[1440px] px-4 sm:px-6">
-            {children}
-            <Toaster />
-          </div>
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6">{children}</div>
         )}
       </div>
+      {/* Global overlay, so page padding can't shift it. */}
+      <Toaster />
     </body>
   );
 }
