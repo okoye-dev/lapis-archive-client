@@ -31,6 +31,11 @@ const config = {
       red: "#F71C1C",
     },
     extend: {
+      // Viewport minus the fixed navbar offset (body pt-20). Using min-h-screen
+      // inside that padding overflows the page by exactly the navbar height.
+      minHeight: {
+        content: "calc(100vh - 5rem)",
+      },
       fontFamily: {
         sans: [
           "-apple-system",

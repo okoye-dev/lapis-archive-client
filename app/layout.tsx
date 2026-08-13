@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import { Inter, Fraunces } from "next/font/google";
 import ClientLayout from "@/components/ClientLayout";
+import { resolveSiteUrl } from "@/lib/site";
 
 // Apple's actual San Francisco font isn't licensed for use outside Apple
 // platform apps/marketing, so it can't be pulled from a CDN legitimately.
@@ -27,9 +28,7 @@ const siteDescription =
   "Upload a file, get a link and an access code, send both to whoever needs them. Open source and friendly.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  ),
+  metadataBase: resolveSiteUrl(),
   title: "Lapis Archive - Simple, Private File Sharing",
   description: siteDescription,
   // No `images` here on purpose: app/opengraph-image.tsx is a Next file

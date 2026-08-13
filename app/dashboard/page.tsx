@@ -122,7 +122,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-content">
       <section className="py-10 sm:py-16">
         <div className="mx-auto max-w-2xl">
           <div className="mb-6 sm:mb-8">

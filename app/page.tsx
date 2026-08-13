@@ -67,7 +67,7 @@ const Home = () => {
   }, [word.index]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-content">
       <section ref={heroRef} className="px-4 pb-8 pt-2 sm:px-6 sm:pb-12 sm:pt-4">
         <div className="container relative mx-auto flex min-h-[85vh] flex-col items-center justify-center overflow-hidden rounded-[2.5rem] bg-slate-950 px-6 py-20 text-center sm:rounded-[3rem] sm:py-28">
           <HeroBlobs />

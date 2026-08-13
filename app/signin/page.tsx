@@ -104,7 +104,7 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-content items-center justify-center px-4">
       <Card className="w-full max-w-md p-6 sm:p-8">
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-xl font-semibold text-foreground">
