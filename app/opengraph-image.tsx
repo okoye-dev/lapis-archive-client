@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Lapis Archive — simple, private file sharing";
+export const alt = "Lapis Archive, simple and private file sharing";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

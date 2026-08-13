@@ -27,25 +27,30 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <body
       className={cn(
-        "relative overflow-x-hidden pt-20 leading-[1.25rem] text-black",
+        "relative overflow-x-hidden leading-[1.25rem] text-black",
         isHomePage || isSigninPage || isSignupPage || isSharePage
           ? "bg-gradient-to-b from-primary/10 to-background"
           : ""
       )}
     >
       <Navbar />
-      {isHomePage ? (
-        <>
-          {children}
-          <Footer />
-          <Toaster />
-        </>
-      ) : (
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6">
-          {children}
-          <Toaster />
-        </div>
-      )}
+      {/* The navbar offset lives here, not on body: Radix's scroll lock
+          rewrites body padding when a dialog opens and would zero it out,
+          shifting the page up. */}
+      <div className="pt-20">
+        {isHomePage ? (
+          <>
+            {children}
+            <Footer />
+            <Toaster />
+          </>
+        ) : (
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6">
+            {children}
+            <Toaster />
+          </div>
+        )}
+      </div>
     </body>
   );
 }

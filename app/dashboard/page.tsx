@@ -272,15 +272,26 @@ const Dashboard = () => {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Share {shareFile?.name}</DialogTitle>
+            <DialogTitle>Share a file</DialogTitle>
             <DialogDescription>
               {shareResult
                 ? shareEmail
-                  ? `Recipient: ${shareEmail} — copy the link and code below and send them yourself.`
-                  : "Copy the link and code below and send them to whoever you like."
-                : "You'll get a link and a one-time access code for this file. Nothing is emailed for you — copy both and send them yourself. Adding your email is optional."}
+                  ? `Send the link and code below to ${shareEmail}. We don't email them for you.`
+                  : "Send the link and code below to whoever you like. We don't email them for you."
+                : "You'll get a link and an access code to pass along however you like. Adding an email is optional, and nothing gets sent for you."}
             </DialogDescription>
           </DialogHeader>
+
+          <div className={cn(softSurface.primary, "p-3")}>
+            <span className="block truncate text-sm font-medium text-foreground">
+              {shareFile?.name}
+            </span>
+            {shareFile?.size ? (
+              <span className="text-xs text-muted-foreground">
+                {formatFileSize(shareFile.size)}
+              </span>
+            ) : null}
+          </div>
 
           {!shareResult ? (
             <form onSubmit={handleCreateShare} className="space-y-4">
@@ -344,7 +355,9 @@ const Dashboard = () => {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Shown once. Save it now, we only keep a hashed copy.
+                  Save the link and code somewhere safe before you close this.
+                  The code is only shown once, and without both of them this
+                  file can&apos;t be opened again.
                 </p>
               </div>
               <DialogFooter>

@@ -131,7 +131,7 @@ const SharePage = () => {
           </h1>
           <p className="mb-4 text-sm text-muted-foreground">
             Something went wrong reaching the server. This usually clears up on
-            its own — try again.
+            its own, so give it another try.
           </p>
           <Button onClick={() => setReloadKey((k) => k + 1)}>Retry</Button>
         </Card>
