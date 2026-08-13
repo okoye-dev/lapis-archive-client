@@ -84,4 +84,4 @@ hooks/             useFiles, useToast, ...
 
 ## License
 
-[MIT](https://github.com/okoye-dev)
+[MIT](LICENSE)
