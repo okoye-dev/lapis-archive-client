@@ -40,18 +40,22 @@ export default function UploadPanel() {
   // queue on its own. It collapses rather than vanishing, so nothing jumps.
   const [leaving, setLeaving] = useState<string[]>([]);
   const scheduled = useRef<Set<string>>(new Set());
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
-    const timers: ReturnType<typeof setTimeout>[] = [];
+    const pending = timers.current;
+    return () => pending.forEach(clearTimeout);
+  }, []);
 
+  useEffect(() => {
     queue.forEach((item) => {
       if (item.status !== "done" || scheduled.current.has(item.id)) return;
       scheduled.current.add(item.id);
 
-      timers.push(
+      timers.current.push(
         setTimeout(() => {
           setLeaving((prev) => [...prev, item.id]);
-          timers.push(
+          timers.current.push(
             setTimeout(() => {
               discard(item.id);
               setLeaving((prev) => prev.filter((id) => id !== item.id));
@@ -61,8 +65,6 @@ export default function UploadPanel() {
         }, SETTLE_MS),
       );
     });
-
-    return () => timers.forEach(clearTimeout);
   }, [queue, discard]);
 
   // Nothing leaves the browser until Upload is pressed.
@@ -101,82 +103,93 @@ export default function UploadPanel() {
         </label>
       </div>
 
-      {hasMounted && queue.length > 0 && (
-        <div className="mt-6">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Uploads
-          </h3>
+      {/* grid-rows 1fr -> 0fr animates to the content's natural height, so the
+          heading collapses with the last row instead of snapping away. */}
+      {hasMounted && (
+        <div
+          className={cn(
+            "grid transition-all duration-300 ease-out",
+            queue.length > 0
+              ? "mt-6 grid-rows-[1fr] opacity-100"
+              : "mt-0 grid-rows-[0fr] opacity-0",
+          )}
+        >
+          <div className="overflow-hidden">
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Uploads
+            </h3>
 
-          <div>
-            {queue.map((item) => {
-              const isLeaving = leaving.includes(item.id);
-              return (
-                <div
-                  key={item.id}
-                  // Height and margin both collapse, so the rows below slide up
-                  // smoothly instead of snapping.
-                  className={cn(
-                    "overflow-hidden transition-all duration-300 ease-out",
-                    isLeaving
-                      ? "mb-0 max-h-0 opacity-0"
-                      : "mb-2 max-h-24 opacity-100",
-                  )}
-                >
-                  <div className={cn(softSurface.primary, "p-2")}>
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-foreground">
-                          {item.name}
-                        </span>
-                        <span
-                          className={cn(
-                            "text-xs",
-                            item.status === "error"
-                              ? "text-destructive"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {formatFileSize(item.size)} · {statusLabel(item)}
-                        </span>
+            <div>
+              {queue.map((item) => {
+                const isLeaving = leaving.includes(item.id);
+                return (
+                  <div
+                    key={item.id}
+                    // Height and margin both collapse, so the rows below slide up
+                    // smoothly instead of snapping.
+                    className={cn(
+                      "overflow-hidden transition-all duration-300 ease-out",
+                      isLeaving
+                        ? "mb-0 max-h-0 opacity-0"
+                        : "mb-2 max-h-24 opacity-100",
+                    )}
+                  >
+                    <div className={cn(softSurface.primary, "p-2")}>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium text-foreground">
+                            {item.name}
+                          </span>
+                          <span
+                            className={cn(
+                              "text-xs",
+                              item.status === "error"
+                                ? "text-destructive"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            {formatFileSize(item.size)} · {statusLabel(item)}
+                          </span>
+                        </div>
+                        {!uploading && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Remove ${item.name}`}
+                            className="h-8 w-8 shrink-0"
+                            onClick={() => discard(item.id)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
-                      {!uploading && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Remove ${item.name}`}
-                          className="h-8 w-8 shrink-0"
-                          onClick={() => discard(item.id)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+
+                      {item.status !== "error" && (
+                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-primary/15">
+                          <div
+                            className="h-full rounded-full bg-primary transition-[width] duration-200"
+                            style={{ width: `${item.progress}%` }}
+                          />
+                        </div>
                       )}
                     </div>
-
-                    {item.status !== "error" && (
-                      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-orange-400/20">
-                        <div
-                          className="h-full rounded-full bg-orange-400 transition-[width] duration-200"
-                          style={{ width: `${item.progress}%` }}
-                        />
-                      </div>
-                    )}
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
 
-          {waiting > 0 && (
-            <Button
-              className="mt-4 w-full"
-              disabled={uploading}
-              onClick={startUploads}
-            >
-              {uploading
-                ? "Uploading..."
-                : `Upload ${waiting} file${waiting === 1 ? "" : "s"}`}
-            </Button>
-          )}
+            {waiting > 0 && (
+              <Button
+                className="mt-4 w-full"
+                disabled={uploading}
+                onClick={startUploads}
+              >
+                {uploading
+                  ? "Uploading..."
+                  : `Upload ${waiting} file${waiting === 1 ? "" : "s"}`}
+              </Button>
+            )}
+          </div>
         </div>
       )}
     </>
