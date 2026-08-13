@@ -147,8 +147,13 @@ const SharePage = () => {
             This share has expired
           </h1>
           <p className="text-sm text-muted-foreground">
-            Ask the sender to share {meta?.fileName ?? "the file"} again.
+            Ask the sender to share it again.
           </p>
+          {meta?.fileName ? (
+            <p className="mt-2 truncate text-sm font-medium text-foreground">
+              {meta.fileName}
+            </p>
+          ) : null}
         </Card>
       </div>
     );

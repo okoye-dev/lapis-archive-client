@@ -1,9 +1,8 @@
 "use client";
 
+import { Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { cn, softSurface } from "@/lib/utils";
 import { useShareStore } from "@/store/shareStore";
 import { useCopy } from "@/hooks/useCopy";
 import { useHasMounted } from "@/hooks/useHasMounted";
@@ -16,43 +15,37 @@ export default function SharedLinks() {
   if (!hasMounted || shares.length === 0) return null;
 
   return (
-    <section className="py-10 sm:py-16">
+    <section className="pb-12">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-6 text-center sm:mb-8">
-          <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
-            Shared links
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            This history is only saved in this browser for now.
-          </p>
-        </div>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Shared links
+        </h2>
 
-        <Card className="p-4 sm:p-8">
-          <div className="space-y-3">
+        <Card className="px-3 py-1">
+          <ul className="divide-y divide-primary/10">
             {shares.map((share) => (
-              <div key={share.slug} className={cn(softSurface.primary, "p-3")}>
-                <span className="block truncate text-xs text-muted-foreground">
-                  {share.fileName}
-                </span>
-                <div className="mt-2 flex items-center gap-2">
-                  <Input
-                    readOnly
-                    value={share.link}
-                    className="min-w-0 flex-1 text-xs"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0"
-                    onClick={() => copy(share.link)}
-                  >
-                    Copy link
-                  </Button>
+              <li key={share.slug} className="flex items-center gap-3 py-2">
+                <div className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-foreground">
+                    {share.fileName}
+                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {share.link}
+                  </span>
                 </div>
-              </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`Copy link for ${share.fileName}`}
+                  className="h-8 w-8 shrink-0 text-muted-foreground hover:text-primary"
+                  onClick={() => copy(share.link)}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </li>
             ))}
-          </div>
+          </ul>
         </Card>
       </div>
     </section>

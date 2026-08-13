@@ -93,7 +93,9 @@ export default function ShareDialog({ file, onClose }: ShareDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className={cn(softSurface.primary, "p-3")}>
+        {/* min-w-0: a grid child defaults to min-width:auto, which lets an
+            unbroken filename widen the dialog instead of truncating. */}
+        <div className={cn(softSurface.primary, "min-w-0 p-3")}>
           <span className="block truncate text-sm font-medium text-foreground">
             {file?.name}
           </span>
@@ -106,25 +108,42 @@ export default function ShareDialog({ file, onClose }: ShareDialogProps) {
 
         {!result ? (
           <form onSubmit={handleCreate} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="ownerEmail">Your email (optional)</Label>
-              <Input
-                id="ownerEmail"
-                type="email"
-                placeholder="you@example.com"
-                value={ownerEmail}
-                onChange={(e) => setOwnerEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="recipientEmail">Recipient email (optional)</Label>
-              <Input
-                id="recipientEmail"
-                type="email"
-                placeholder="friend@example.com"
-                value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
-              />
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground/70">
+                Optional
+              </p>
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="ownerEmail"
+                  className="text-xs font-normal text-muted-foreground"
+                >
+                  Your email
+                </Label>
+                <Input
+                  id="ownerEmail"
+                  type="email"
+                  placeholder="you@example.com"
+                  className="h-9 text-sm placeholder:text-xs placeholder:text-muted-foreground/50"
+                  value={ownerEmail}
+                  onChange={(e) => setOwnerEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="recipientEmail"
+                  className="text-xs font-normal text-muted-foreground"
+                >
+                  Recipient email
+                </Label>
+                <Input
+                  id="recipientEmail"
+                  type="email"
+                  placeholder="friend@example.com"
+                  className="h-9 text-sm placeholder:text-xs placeholder:text-muted-foreground/50"
+                  value={recipientEmail}
+                  onChange={(e) => setRecipientEmail(e.target.value)}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button type="submit" className="w-full" disabled={creating}>
