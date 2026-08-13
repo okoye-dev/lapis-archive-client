@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/store/authStore";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type RequestOptions = {
   params?: Record<string, string | number>;
@@ -40,15 +40,14 @@ class ApiService {
     return getApiBaseUrl();
   }
 
-  private getHeaders(): Record<string, string> {
-    const token = useAuthStore.getState().getAccessToken();
-    const headers: Record<string, string> = { ...this.defaultHeaders };
-    // Only send Authorization when a real token exists — otherwise we'd send
-    // "Bearer undefined", which the backend rejects.
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
+  private async getAuthToken(): Promise<string | null> {
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { data } = await supabase.auth.getSession();
+      return data.session?.access_token ?? null;
+    } catch {
+      return null;
     }
-    return headers;
   }
 
   private formatUrl(path: string, options?: RequestOptions): string {
@@ -75,20 +74,18 @@ class ApiService {
     options?: RequestOptions
   ): Promise<T> {
     const url = this.formatUrl(path, options);
-    const headers = { ...this.getHeaders(), ...options?.headers };
+    const token = await this.getAuthToken();
+    const headers: Record<string, string> = {
+      ...this.defaultHeaders,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    };
 
     const response = await fetch(url, {
       method,
       headers,
       body: options?.body ? JSON.stringify(options.body) : undefined,
     });
-
-    // A 401 means the token is missing or expired. We don't refresh — clear
-    // the session so the UI can prompt a fresh sign-in, then surface the error
-    // through the generic handler below.
-    if (response.status === 401) {
-      useAuthStore.getState().signOut();
-    }
 
     if (!response.ok) {
       let errorMessage = `HTTP error! status: ${response.status}`;

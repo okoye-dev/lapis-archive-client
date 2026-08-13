@@ -27,6 +27,9 @@ const siteDescription =
   "Upload a file, get a link and an access code, send both to whoever needs them. Open source and friendly.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  ),
   title: "Lapis Archive - Simple, Private File Sharing",
   description: siteDescription,
   // No `images` here on purpose: app/opengraph-image.tsx is a Next file

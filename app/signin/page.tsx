@@ -5,10 +5,13 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/useToast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/authStore";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+
+// Applied to user_metadata on first creation only. Single-admin setup for now.
+const NEW_USER_DISPLAY_NAME = "admin";
 
 const SignIn = () => {
   const [step, setStep] = useState<"email" | "code">("email");
@@ -18,8 +21,20 @@ const SignIn = () => {
   const [verifying, setVerifying] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const sendOtp = useAuthStore((state) => state.sendOtp);
-  const verifyOtp = useAuthStore((state) => state.verifyOtp);
+
+  const messageFrom = (err: unknown, fallback: string) =>
+    err instanceof Error && err.message ? err.message : fallback;
+
+  useEffect(() => {
+    const failure = new URLSearchParams(window.location.search).get("error");
+    if (!failure) return;
+    toast({
+      title: "Couldn't sign you in",
+      description: failure,
+      variant: "destructive",
+    });
+    window.history.replaceState({}, "", "/signin");
+  }, [toast]);
 
   const handleSendCode = async (e: FormEvent) => {
     e.preventDefault();
@@ -28,7 +43,18 @@ const SignIn = () => {
 
     setSending(true);
     try {
-      await sendOtp(trimmed);
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        email: trimmed,
+        options: {
+          shouldCreateUser: true,
+          data: { display_name: NEW_USER_DISPLAY_NAME },
+          // Only used if the email template sends a link instead of a code.
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+
       setStep("code");
       toast({
         title: "Check your email",
@@ -37,7 +63,7 @@ const SignIn = () => {
     } catch (err) {
       toast({
         title: "Couldn't send the code",
-        description: err instanceof Error ? err.message : "Please try again.",
+        description: messageFrom(err, "Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -52,16 +78,24 @@ const SignIn = () => {
 
     setVerifying(true);
     try {
-      await verifyOtp(email.trim(), trimmedCode);
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: trimmedCode,
+        type: "email",
+      });
+      if (error) throw error;
+
       toast({
         title: "Signed in",
-        description: "You're in. Head to your dashboard to upload and share.",
+        description: "You're in. Here's your account and share history.",
       });
-      router.push("/dashboard");
+      router.push("/account");
+      router.refresh();
     } catch (err) {
       toast({
         title: "Couldn't verify the code",
-        description: err instanceof Error ? err.message : "Please try again.",
+        description: messageFrom(err, "Please try again."),
         variant: "destructive",
       });
     } finally {

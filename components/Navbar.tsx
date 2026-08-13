@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/hooks/useUser";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import Logo from "./Logo";
 import { Button } from "./ui/button";
@@ -26,11 +28,6 @@ const itemDelay = (open: boolean, index: number) => ({
   transitionDelay: open ? `${index * ITEM_STAGGER_MS}ms` : "0ms",
 });
 
-const navLinks = [
-  { href: "/dashboard", label: "Upload" },
-  { href: "/signin", label: "Sign In" },
-];
-
 // Long enough that clipping a corner of the menu on the way to it doesn't
 // dismiss it, short enough that a deliberate exit still feels responsive.
 const CLOSE_DELAY_MS = 400;
@@ -38,7 +35,18 @@ const CLOSE_DELAY_MS = 400;
 const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = user
+    ? [
+        { href: "/dashboard", label: "Upload" },
+        { href: "/account", label: "Account" },
+      ]
+    : [
+        { href: "/dashboard", label: "Upload" },
+        { href: "/signin", label: "Sign In" },
+      ];
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const cancelClose = () => {
@@ -70,6 +78,17 @@ const Navbar = () => {
   const goTo = (href: string) => {
     closeNow();
     router.push(href);
+  };
+
+  const handleSignOut = async () => {
+    closeNow();
+    try {
+      await getSupabaseBrowserClient().auth.signOut();
+    } catch {
+      // nothing to sign out of
+    }
+    router.push("/");
+    router.refresh();
   };
 
   return (
@@ -143,13 +162,24 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden justify-self-end md:block">
-          <Button
-            size="lg"
-            className="rounded-full border border-black/15 text-base"
-            onClick={() => goTo("/signup")}
-          >
-            Sign Up
-          </Button>
+          {user ? (
+            <Button
+              size="lg"
+              variant="outline"
+              className="rounded-full border border-black/15 text-base"
+              onClick={handleSignOut}
+            >
+              Sign Out
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              className="rounded-full border border-black/15 text-base"
+              onClick={() => goTo("/signup")}
+            >
+              Sign Up
+            </Button>
+          )}
         </div>
 
         {/* col-start-3 is load-bearing: the desktop nav and Sign Up button
@@ -239,9 +269,9 @@ const Navbar = () => {
                   )}
                   tabIndex={mobileOpen ? undefined : -1}
                   style={itemDelay(mobileOpen, navLinks.length)}
-                  onClick={() => goTo("/signup")}
+                  onClick={user ? handleSignOut : () => goTo("/signup")}
                 >
-                  Sign Up
+                  {user ? "Sign Out" : "Sign Up"}
                 </Button>
               </nav>
             </div>

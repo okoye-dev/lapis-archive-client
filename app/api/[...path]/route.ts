@@ -67,6 +67,9 @@ async function proxyRequest(
       'content-length',
       'connection',
       'upgrade',
+      // The Supabase session (access + refresh token) lives in cookies now.
+      // The backend authenticates with the Bearer header only.
+      'cookie',
       'x-forwarded-for',
       'x-forwarded-host',
       'x-forwarded-proto',
@@ -110,7 +113,9 @@ async function proxyRequest(
       const responseHeaders = new Headers();
       response.headers.forEach((value, key) => {
         // Don't copy problematic headers
-        if (!['content-encoding', 'transfer-encoding'].includes(key.toLowerCase())) {
+        // content-length too: the body is decompressed here, so the upstream
+        // length no longer matches.
+        if (!['content-encoding', 'transfer-encoding', 'content-length'].includes(key.toLowerCase())) {
           responseHeaders.set(key, value);
         }
       });
