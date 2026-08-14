@@ -108,14 +108,21 @@ export default function ShareDialog({ file, onClose }: ShareDialogProps) {
 
         {!result ? (
           <form onSubmit={handleCreate} className="space-y-4">
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground/70">
-                Optional
-              </p>
-              <div className="space-y-1.5">
+            {/* Deliberately recessed: these are optional, so they shouldn't
+                compete with the file or the action. */}
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground/50">
+                  Optional
+                </p>
+                <span className="rounded-full border border-border/60 px-2 py-0.5 text-[10px] text-muted-foreground/60">
+                  Sending coming soon
+                </span>
+              </div>
+              <div className="space-y-1">
                 <Label
                   htmlFor="ownerEmail"
-                  className="text-xs font-normal text-muted-foreground"
+                  className="text-[11px] font-normal text-muted-foreground/70"
                 >
                   Your email
                 </Label>
@@ -123,15 +130,15 @@ export default function ShareDialog({ file, onClose }: ShareDialogProps) {
                   id="ownerEmail"
                   type="email"
                   placeholder="you@example.com"
-                  className="h-9 text-sm placeholder:text-xs placeholder:text-muted-foreground/50"
+                  className="h-8 border-border/60 bg-transparent text-xs placeholder:text-[11px] placeholder:text-muted-foreground/40"
                   value={ownerEmail}
                   onChange={(e) => setOwnerEmail(e.target.value)}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <Label
                   htmlFor="recipientEmail"
-                  className="text-xs font-normal text-muted-foreground"
+                  className="text-[11px] font-normal text-muted-foreground/70"
                 >
                   Recipient email
                 </Label>
@@ -139,7 +146,7 @@ export default function ShareDialog({ file, onClose }: ShareDialogProps) {
                   id="recipientEmail"
                   type="email"
                   placeholder="friend@example.com"
-                  className="h-9 text-sm placeholder:text-xs placeholder:text-muted-foreground/50"
+                  className="h-8 border-border/60 bg-transparent text-xs placeholder:text-[11px] placeholder:text-muted-foreground/40"
                   value={recipientEmail}
                   onChange={(e) => setRecipientEmail(e.target.value)}
                 />

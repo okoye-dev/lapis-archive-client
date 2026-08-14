@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, KeyRound, Zap } from "lucide-react";
+import { KeyRound, Zap } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import PlaceholderImage from "@/components/PlaceholderImage";
+import UploadCta from "@/components/UploadCta";
 import HeroBlobs from "@/components/HeroBlobs";
 import FeatureShowcase from "@/components/FeatureShowcase";
 import { useInView } from "@/hooks/useInView";
@@ -73,24 +73,14 @@ const Home = () => {
           <HeroBlobs />
 
           <div className="relative z-10 flex flex-col items-center">
-            <p className="mb-4 text-sm font-medium text-slate-400 sm:text-base">
-              Open source, no account needed, no strings.
-            </p>
             <h1 className="mx-auto flex max-w-3xl flex-wrap items-baseline justify-center gap-x-3 gap-y-2">
               <span className="text-4xl font-bold tracking-tighter text-white sm:text-6xl md:text-7xl">
                 Share
               </span>
-              {/* Holder carries the measured width so the heading recentres
-                  gradually. Overflow stays visible on purpose: the word is
-                  briefly wider than the holder mid-transition, and clipping
-                  it would also cut off its slide-in. */}
               <span
                 className="relative inline-block text-left transition-[width] duration-700 ease-out"
                 style={{ width: wordWidth }}
               >
-                {/* The outgoing word sits out of flow so it can overlap the
-                    incoming one for a crossfade without contributing to the
-                    holder's measured width. */}
                 {word.previous !== null && (
                   <span
                     key={`out-${word.previous}-${word.index}`}
@@ -100,10 +90,6 @@ const Home = () => {
                     {heroWords[word.previous]}
                   </span>
                 )}
-                {/* key remounts the span on every word, which replays the
-                    animation. No duration-* utility here: tailwindcss-animate
-                    makes those set animation-duration too, which would
-                    override the timing baked into animate-word-in. */}
                 <span
                   ref={wordRef}
                   key={heroWords[word.index]}
@@ -113,21 +99,17 @@ const Home = () => {
                 </span>
               </span>
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-base text-slate-300 sm:text-lg">
+            <p className="mx-auto px-[5%] text-balance mt-6 max-w-xl text-base text-slate-300 sm:text-lg">
               Got a file on this device that needs to be on that one?
               Upload it, grab the link and the little code, send both.
               No cables, no cloud drama.
             </p>
             <div className="mt-10 flex justify-center">
-              <Button
-                size="lg"
-                className="rounded-full text-lg sm:px-10 sm:py-7 sm:text-xl"
-                onClick={() => router.push("/dashboard")}
-              >
-                Upload something
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <UploadCta />
             </div>
+            <p className="mt-3 text-xs font-medium text-slate-400/60 lg:text-sm">
+              No, you don't need to login.
+            </p>
           </div>
         </div>
         <div className="my-6 text-center">
@@ -197,14 +179,7 @@ const Home = () => {
           <p className="mx-auto mb-10 max-w-md text-muted-foreground sm:text-lg">
             It takes less time than finding the right USB cable.
           </p>
-          <Button
-            size="lg"
-            className="rounded-full border border-orange-500/40 text-lg sm:px-10 sm:py-7"
-            onClick={() => router.push("/dashboard")}
-          >
-            Upload something
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+          <UploadCta className="border border-orange-500/40" />
         </div>
       </section>
     </div>

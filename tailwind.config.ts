@@ -19,6 +19,11 @@ const config = {
       },
     },
     colors: {
+      // This block replaces Tailwind's default palette wholesale, so the two
+      // keywords have to be restored by hand or text-transparent and
+      // border-current silently don't exist.
+      transparent: "transparent",
+      current: "currentColor",
       // Not pure #FFF: a hair of the brand's purple keeps every white
       // surface and label in the same family as the rest of the palette.
       white: "#FBFAFF",
