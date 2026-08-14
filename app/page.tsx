@@ -108,7 +108,7 @@ const Home = () => {
               <UploadCta />
             </div>
             <p className="mt-3 text-xs font-medium text-slate-400/60 lg:text-sm">
-              No, you don't need to login.
+              No, you don&apos;t need to login.
             </p>
           </div>
         </div>
