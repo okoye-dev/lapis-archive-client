@@ -19,13 +19,10 @@ const config = {
       },
     },
     colors: {
-      // This block replaces Tailwind's default palette wholesale, so the two
-      // keywords have to be restored by hand or text-transparent and
-      // border-current silently don't exist.
+      // This replaces Tailwind's default palette, so restore these two.
       transparent: "transparent",
       current: "currentColor",
-      // Not pure #FFF: a hair of the brand's purple keeps every white
-      // surface and label in the same family as the rest of the palette.
+      // Not pure #FFF: a hint of brand purple in every white surface.
       white: "#FBFAFF",
       border: "EBEBEB",
       blue: "#3B72FF",
@@ -36,8 +33,7 @@ const config = {
       red: "#F71C1C",
     },
     extend: {
-      // Viewport minus the fixed navbar offset (body pt-20). Using min-h-screen
-      // inside that padding overflows the page by exactly the navbar height.
+      // Viewport minus the navbar offset, so pages don't overflow by pt-20.
       minHeight: {
         content: "calc(100vh - 5rem)",
       },
@@ -66,6 +62,7 @@ const config = {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          hover: "hsl(var(--primary-hover))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -162,6 +159,11 @@ const config = {
           "0%": { opacity: "1", transform: "translateY(0)" },
           "100%": { opacity: "0", transform: "translateY(-16px)" },
         },
+        // Progress-bar breathing while a part uploads (no spinner needed).
+        "pulse-soft": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.8" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -173,6 +175,7 @@ const config = {
         "fade-out": "fade-out 0.7s cubic-bezier(0.4, 0, 1, 1) both",
         "word-in": "word-in 0.9s cubic-bezier(0.33, 0, 0.2, 1) both",
         "word-out": "word-out 0.6s cubic-bezier(0.33, 0, 0.2, 1) both",
+        "pulse-soft": "pulse-soft 1.8s ease-in-out infinite",
       },
     },
   },

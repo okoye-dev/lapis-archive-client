@@ -13,8 +13,11 @@
     --popover: 250 100% 99%;
     --popover-foreground: 250 15% 12%;
 
-    --primary: 252 65% 63%;
+    --primary: 258 90% 66%;
     --primary-foreground: 250 100% 99%;
+    /* One step darker in the same violet hue, so hover deepens without
+       sliding toward blue. */
+    --primary-hover: 262 83% 58%;
 
     --secondary: 250 40% 94%;
     --secondary-foreground: 252 50% 30%;
@@ -79,6 +82,7 @@
 
     --primary: 142 76% 46%;
     --primary-foreground: 0 0% 10%;
+    --primary-hover: 142 76% 38%;
 
     --secondary: 120 10% 15%;
     --secondary-foreground: 120 5% 95%;

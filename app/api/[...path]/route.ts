@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 // Backend configuration - use existing env vars
 const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:6060';
 const REQUEST_TIMEOUT = 30000; // 30 seconds
-// Only small JSON flows through this proxy now — uploads/downloads go direct
-// to the bucket via presigned URLs — so anything bigger is refused up front.
+// Only small JSON flows through here (uploads go direct to the bucket), so
+// anything bigger is refused.
 const MAX_BODY_BYTES = 1_048_576; // 1 MB
 
 export async function GET(
@@ -35,14 +35,40 @@ export async function DELETE(
   return proxyRequest(request, params.path, 'DELETE');
 }
 
+// Reads the body, aborting past MAX_BODY_BYTES so a chunked request with no
+// content-length can't exhaust memory.
+async function readCappedBody(request: NextRequest): Promise<ArrayBuffer> {
+  if (!request.body) return new ArrayBuffer(0);
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > MAX_BODY_BYTES) {
+      await reader.cancel();
+      throw new Error('body too large');
+    }
+    chunks.push(value);
+  }
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const c of chunks) {
+    out.set(c, offset);
+    offset += c.byteLength;
+  }
+  return out.buffer;
+}
+
 async function proxyRequest(
   request: NextRequest,
   pathSegments: string[],
   method: string
 ) {
   try {
-    // Reject oversized bodies before reading them. We can only trust
-    // content-length as a hint, but it catches the obvious cases cheaply.
+    // Fail the obvious case cheaply; the real ceiling is enforced while
+    // reading the body below.
     const contentLength = request.headers.get('content-length');
     if (contentLength && Number(contentLength) > MAX_BODY_BYTES) {
       return NextResponse.json(
@@ -59,16 +85,13 @@ async function proxyRequest(
 
     // Prepare headers - exclude problematic ones
     const headers: Record<string, string> = {};
-    // Strip hop-by-hop headers plus client-supplied forwarding headers so a
-    // caller can't spoof their origin IP or the perceived host/proto to the
-    // backend — only our own infrastructure should set those.
+    // Strip hop-by-hop and forwarding headers so a caller can't spoof origin.
     const excludeHeaders = [
       'host',
       'content-length',
       'connection',
       'upgrade',
-      // The Supabase session (access + refresh token) lives in cookies now.
-      // The backend authenticates with the Bearer header only.
+      // Session cookies stay here; the backend only reads the Bearer header.
       'cookie',
       'x-forwarded-for',
       'x-forwarded-host',
@@ -83,15 +106,15 @@ async function proxyRequest(
       }
     });
 
-    // Handle request body
-    let body: any = undefined;
+    let body: ArrayBuffer | undefined = undefined;
     if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-      // For multipart/form-data, preserve the raw body
-      const contentType = request.headers.get('content-type');
-      if (contentType?.includes('multipart/form-data')) {
-        body = await request.arrayBuffer();
-      } else {
-        body = await request.arrayBuffer();
+      try {
+        body = await readCappedBody(request);
+      } catch {
+        return NextResponse.json(
+          { error: 'Request body too large' },
+          { status: 413 }
+        );
       }
     }
 
@@ -112,9 +135,7 @@ async function proxyRequest(
       // Copy response headers
       const responseHeaders = new Headers();
       response.headers.forEach((value, key) => {
-        // Don't copy problematic headers
-        // content-length too: the body is decompressed here, so the upstream
-        // length no longer matches.
+        // content-length is dropped too: the body is decompressed here.
         if (!['content-encoding', 'transfer-encoding', 'content-length'].includes(key.toLowerCase())) {
           responseHeaders.set(key, value);
         }
