@@ -2,16 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
-import { UploadCloud, X } from "lucide-react";
+import { Pause, Play, UploadCloud, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn, softSurface } from "@/lib/utils";
 import { formatFileSize } from "@/utils/formatFileSize";
-import { useUploadQueue } from "@/hooks/useUploadQueue";
+import { useUploadQueue, MAX_UPLOAD_BYTES } from "@/hooks/useUploadQueue";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import type { QueueItem } from "@/store/uploadQueueStore";
 
-// "storing" is the gap between the last byte leaving the browser and the
-// bucket confirming it, so 100% never reads as done before it is.
+// "storing" is the wait for the bucket to confirm, so 100% != done yet.
 const statusLabel = (item: QueueItem) => {
   switch (item.status) {
     case "queued":
@@ -20,6 +19,8 @@ const statusLabel = (item: QueueItem) => {
       return `${item.progress}%`;
     case "storing":
       return "Finishing up";
+    case "paused":
+      return `Paused at ${item.progress}%`;
     case "done":
       return "Uploaded";
     case "error":
@@ -27,17 +28,22 @@ const statusLabel = (item: QueueItem) => {
   }
 };
 
-// Long enough to read "Uploaded", short enough not to linger.
+// How long a finished row lingers before it collapses out.
 const SETTLE_MS = 1000;
 const EXIT_MS = 300;
 
 export default function UploadPanel() {
-  const { queue, waiting, uploading, stageFiles, startUploads, discard } =
-    useUploadQueue();
+  const {
+    queue,
+    waiting,
+    uploading,
+    stageFiles,
+    startUploads,
+    pause,
+    resume,
+    discard,
+  } = useUploadQueue();
   const hasMounted = useHasMounted();
-
-  // A finished file already lives in the list below, so it retires from the
-  // queue on its own. It collapses rather than vanishing, so nothing jumps.
   const [leaving, setLeaving] = useState<string[]>([]);
   const scheduled = useRef<Set<string>>(new Set());
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -79,14 +85,14 @@ export default function UploadPanel() {
       <div
         className={cn(
           softSurface.primary,
-          "border-dashed p-6 text-center sm:p-12",
+          "rounded-2xl border-dashed p-6 text-center sm:p-12",
         )}
       >
-        <UploadCloud className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
-        <p className="mb-1 text-base font-medium text-foreground sm:text-lg">
+        <UploadCloud className="mx-auto mb-2 h-10 w-10 text-muted-foreground" />
+        <p className="text-base font-medium text-foreground sm:text-lg">
           Pick the files you want to share
         </p>
-        <p className="mb-6 text-sm text-muted-foreground">
+        <p className="mb-4 text-sm text-muted-foreground">
           Any file type. Nothing is sent until you press upload.
         </p>
         <input
@@ -123,8 +129,6 @@ export default function UploadPanel() {
               return (
                 <div
                   key={item.id}
-                  // Height and margin both collapse, so the rows below slide up
-                  // smoothly instead of snapping.
                   className={cn(
                     "overflow-hidden transition-all duration-300 ease-out",
                     isLeaving
@@ -149,23 +153,60 @@ export default function UploadPanel() {
                           {formatFileSize(item.size)} · {statusLabel(item)}
                         </span>
                       </div>
-                      {!uploading && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Remove ${item.name}`}
-                          className="h-8 w-8 shrink-0"
-                          onClick={() => discard(item.id)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <div className="flex shrink-0 items-center gap-1">
+                        {/* Only multipart can pause; small files would restart. */}
+                        {item.status === "uploading" && !!item.partCount && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Pause ${item.name}`}
+                            className="h-10 w-10 text-primary hover:text-primary"
+                            onClick={() => pause(item.id)}
+                          >
+                            <Pause className="h-5 w-5" />
+                          </Button>
+                        )}
+                        {/* Errors resume too: an offline drop lands here. */}
+                        {(item.status === "paused" ||
+                          (item.status === "error" &&
+                            item.size <= MAX_UPLOAD_BYTES)) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={
+                              item.status === "paused"
+                                ? `Resume ${item.name}`
+                                : `Retry ${item.name}`
+                            }
+                            className="h-10 w-10 text-primary hover:text-primary"
+                            onClick={() => resume(item.id)}
+                          >
+                            <Play className="h-5 w-5" />
+                          </Button>
+                        )}
+                        {item.status !== "uploading" && item.status !== "storing" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Remove ${item.name}`}
+                            className="h-8 w-8"
+                            onClick={() => discard(item.id)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     {item.status !== "error" && (
                       <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-primary/15">
                         <div
-                          className="h-full rounded-full bg-primary transition-[width] duration-200"
+                          className={cn(
+                            "h-full rounded-full bg-primary transition-[width] duration-200",
+                            (item.status === "uploading" ||
+                              item.status === "storing") &&
+                              "animate-pulse-soft",
+                          )}
                           style={{ width: `${item.progress}%` }}
                         />
                       </div>
