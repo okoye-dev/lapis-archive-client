@@ -25,7 +25,7 @@ interface Slide {
 const slides: Slide[] = [
   {
     id: "upload",
-    heading: "Drop a file in, get a link out",
+    heading: "Drop a file in, get a link out.",
     body: "Drag a file in and it's on its way. A moment later you've got a link you can hand to anyone. That's it. That's the feature.",
     cta: "Toss a file in",
     imageLabel:
@@ -33,7 +33,7 @@ const slides: Slide[] = [
   },
   {
     id: "access-code",
-    heading: "A code only your recipient has",
+    heading: "A private code for recipients.",
     body: "Every share comes with a little code. The link without the code opens nothing. Send both by text, chat, email, or a very reliable pigeon.",
     cta: "Share something",
     imageLabel:
@@ -41,8 +41,8 @@ const slides: Slide[] = [
   },
   {
     id: "open-source",
-    heading: "Nothing hidden, nothing locked in",
-    body: "The whole thing is open source. Peek inside, run your own copy, or just enjoy knowing there's no mystery box between you and your files.",
+    heading: "Nothing hidden, or locked in.",
+    body: "The whole thing is open source. Look inside, run your own copy, there's no mystery box.",
     cta: "Poke around",
     imageLabel:
       "Illustration idea: dark scene, an open box with code brackets floating out, purple and orange accent lines, friendly and geometric, no text-heavy UI",

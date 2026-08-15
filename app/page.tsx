@@ -101,8 +101,8 @@ const Home = () => {
             </h1>
             <p className="mx-auto px-[5%] text-balance mt-6 max-w-xl text-base text-slate-300 sm:text-lg">
               Got a file on this device that needs to be on that one?
-              Upload it, grab the link and the little code, send both.
-              No cables, no cloud drama.
+              Upload it, send a link and the code.
+              Free.
             </p>
             <div className="mt-10 flex justify-center">
               <UploadCta />
@@ -127,18 +127,17 @@ const Home = () => {
         <div className="container mx-auto grid gap-10 px-6 sm:px-8 md:grid-cols-2 md:items-stretch md:gap-14 lg:px-12">
           <div className="flex flex-col">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-              The whole point
+             minimalist
             </p>
             <h2 className="mb-3 text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl">
               Built for one job.
             </h2>
             <p className="mb-4 text-xl font-medium text-slate-300 sm:text-2xl">
-              Get a file from you to someone else, safely.
+              Give anyone access to a file, fast.
             </p>
             <p className="max-w-md text-base text-slate-400">
-              This started as a way to fling files between devices that
-              refuse to talk to each other. Phone to laptop, work machine
-              to home machine, your computer to your friend&apos;s. Upload, get
+              I built this as a way to fling files between my devices that
+              weren&apos;t compatible. Upload, get
               a code, send the code. Done.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -154,8 +153,7 @@ const Home = () => {
               />
             </div>
             <p className="mt-8 border-t border-slate-800 pt-3 text-sm leading-relaxed text-slate-500 md:mt-auto">
-              No account for your recipient, no apps, nothing to uninstall
-              later. The file just goes where you point it.
+              It&apos;s a quick helper. No accounts needed from anyone.
             </p>
           </div>
           <PlaceholderImage
@@ -174,10 +172,10 @@ const Home = () => {
       <section className="flex min-h-[100vh] items-center justify-center bg-gradient-to-b from-transparent via-primary/[0.12] to-orange-500/25 px-8 py-24 text-center sm:px-16 lg:px-28 xl:px-36">
         <div className="container mx-auto">
           <h2 className="mb-4 text-4xl font-bold text-foreground sm:text-5xl">
-            Go on, send something
+            Go on, send something.
           </h2>
           <p className="mx-auto mb-10 max-w-md text-muted-foreground sm:text-lg">
-            It takes less time than finding the right USB cable.
+            It takes less time than finding the right USB cable (uh...sometimes).
           </p>
           <UploadCta className="border border-orange-500/40" />
         </div>

@@ -27,14 +27,17 @@ const CreatorSection = () => {
 
           <p className="mb-4 max-w-md text-base text-muted-foreground sm:text-lg">
             Hi, I&apos;m the person behind Lapis Archive. I used to move files
-            around with WeTransfer, until one day it tucked everything
-            behind a subscription and sending a single file started to
-            feel like a negotiation.
+            around with free websites, until slowly they all tucked everything
+            behind a subscription. I just want to send a movie to my Tablet, man. And my friend in Sweden.
+          </p>
+          <p className="mb-4 max-w-md text-base text-muted-foreground sm:text-lg">
+            LapisArchive is a lean solution for getting files
+            between devices and borders. It&apos;s open
+            source, and I&apos;d love to hear what you think of it.
           </p>
           <p className="mb-8 max-w-md text-base text-muted-foreground sm:text-lg">
-            So I made this instead: a fun little tool for getting files
-            between devices that refuse to talk to each other. It&apos;s open
-            source, and I&apos;d love to hear what you think of it.
+            And yes, the name is contradictory since we don&apos;t actually store the files past a week, I know.
+            I have plans.
           </p>
 
           <a
