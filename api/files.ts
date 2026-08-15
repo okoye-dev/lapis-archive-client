@@ -74,8 +74,8 @@ const putToBucket = (
   });
 };
 
-// Multipart (resumable) uploads. Part size matches the backend (R2 needs
-// uniform parts); only files past the threshold take this path.
+// Multipart (resumable) uploads. Part size matches the backend (multipart
+// needs uniform parts); only files past the threshold take this path.
 export const PART_SIZE = 8 * 1024 * 1024;
 export const MULTIPART_THRESHOLD = 2 * PART_SIZE;
 
