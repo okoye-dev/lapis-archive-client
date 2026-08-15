@@ -12,6 +12,8 @@ export interface CreatedShare {
   code: string;
   fileName: string;
   fileSize: number;
+  shareCount: number;
+  rotated: boolean;
   expiresAt: string;
 }
 
@@ -19,6 +21,7 @@ export interface ShareMeta {
   slug: string;
   fileName: string;
   fileSize: number;
+  shareCount: number;
   expiresAt: string;
   expired: boolean;
 }
@@ -35,6 +38,8 @@ interface CreateShareResponseBody {
   code: string;
   file_name: string;
   file_size: number;
+  share_count: number;
+  rotated: boolean;
   expires_at: string;
 }
 
@@ -42,6 +47,7 @@ interface ShareMetaResponseBody {
   slug: string;
   file_name: string;
   file_size: number;
+  share_count: number;
   expires_at: string;
   expired: boolean;
 }
@@ -74,6 +80,8 @@ export const createShare = async (
     code: body.code,
     fileName: body.file_name,
     fileSize: body.file_size,
+    shareCount: body.share_count,
+    rotated: body.rotated,
     expiresAt: body.expires_at,
   };
 };
@@ -87,6 +95,7 @@ export const getShare = async (slug: string): Promise<ShareMeta> => {
     slug: body.slug,
     fileName: body.file_name,
     fileSize: body.file_size,
+    shareCount: body.share_count,
     expiresAt: body.expires_at,
     expired: body.expired,
   };
@@ -101,6 +110,7 @@ export const listMyShares = async (): Promise<ShareMeta[]> => {
     slug: share.slug,
     fileName: share.file_name,
     fileSize: share.file_size,
+    shareCount: share.share_count,
     expiresAt: share.expires_at,
     expired: share.expired,
   }));

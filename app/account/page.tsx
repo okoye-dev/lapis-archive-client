@@ -129,6 +129,7 @@ const Account = () => {
                         {share.expired
                           ? "expired"
                           : `expires ${formatDate(share.expiresAt)}`}
+                        {` · code ${share.shareCount || 1} of 3`}
                       </div>
                     </div>
                     <Button

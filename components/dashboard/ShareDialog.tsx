@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { cn, softSurface } from "@/lib/utils";
 import { formatFileSize } from "@/utils/formatFileSize";
 import { useShareStore } from "@/store/shareStore";
+import { ApiError } from "@/api/api-service";
 import { useToast } from "@/hooks/useToast";
 import { useCopy } from "@/hooks/useCopy";
 import type { UploadRecord } from "@/store/uploadsStore";
@@ -28,31 +30,22 @@ interface ShareDialogProps {
 
 export default function ShareDialog({ file, onClose }: ShareDialogProps) {
   const createShare = useShareStore((state) => state.createShare);
-  const sharerEmail = useShareStore((state) => state.sharerEmail);
-  const setSharerEmail = useShareStore((state) => state.setSharerEmail);
   const { toast } = useToast();
   const copy = useCopy();
 
-  const [ownerEmail, setOwnerEmail] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState("");
   const [result, setResult] = useState<CreatedShare | null>(null);
   const [link, setLink] = useState("");
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (!file) return;
-    setOwnerEmail(sharerEmail ?? "");
-    setRecipientEmail("");
     setResult(null);
     setLink("");
-  }, [file, sharerEmail]);
+  }, [file]);
 
   const handleCreate = async (event: FormEvent) => {
     event.preventDefault();
     if (!file || creating) return;
-
-    // Attaching your email is optional and never blocks link creation.
-    if (ownerEmail.trim()) setSharerEmail(ownerEmail.trim());
 
     setCreating(true);
     try {
@@ -60,7 +53,6 @@ export default function ShareDialog({ file, onClose }: ShareDialogProps) {
         fileName: file.name,
         storageKey: file.storageKey,
         fileSize: file.size,
-        recipientEmail: recipientEmail || undefined,
       });
       setResult(share);
       setLink(`${window.location.origin}/share/${share.slug}`);
@@ -69,11 +61,20 @@ export default function ShareDialog({ file, onClose }: ShareDialogProps) {
         description: "Copy the link and code below before you close this.",
       });
     } catch (err) {
-      toast({
-        title: "Couldn't create share",
-        description: err instanceof Error ? err.message : "Please try again.",
-        variant: "destructive",
-      });
+      if (err instanceof ApiError && err.status === 409) {
+        toast({
+          title: "Share limit reached",
+          description:
+            "This file has had its 3 codes. Upload it again to keep sharing.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Couldn't create share",
+          description: err instanceof Error ? err.message : "Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setCreating(false);
     }
@@ -86,10 +87,10 @@ export default function ShareDialog({ file, onClose }: ShareDialogProps) {
           <DialogTitle>Share a file</DialogTitle>
           <DialogDescription>
             {result
-              ? recipientEmail
-                ? `Send the link and code below to ${recipientEmail}. We don't email them for you.`
+              ? result.rotated
+                ? "Same link as before, brand-new code. The old code stopped working."
                 : "Send the link and code below to whoever you like. We don't email them for you."
-              : "You'll get a link and an access code to pass along however you like. Adding an email is optional, and nothing gets sent for you."}
+              : "You'll get a link and an access code to pass along however you like."}
           </DialogDescription>
         </DialogHeader>
 
@@ -108,48 +109,17 @@ export default function ShareDialog({ file, onClose }: ShareDialogProps) {
 
         {!result ? (
           <form onSubmit={handleCreate} className="space-y-4">
-            {/* Deliberately recessed: these are optional, so they shouldn't
-                compete with the file or the action. */}
-            <div className="space-y-2.5">
-              <div className="flex items-center gap-2">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground/50">
-                  Optional
+            {/* Recessed vs the file card above so the hierarchy reads:
+                the file matters, this note is just an aside. */}
+            <div className="flex items-center gap-2.5 rounded-lg border border-border/50 bg-muted/40 px-3 py-2 text-left">
+              <Mail className="h-4 w-4 shrink-0 text-muted-foreground/70" />
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Code emailing is coming soon.
                 </p>
-                <span className="rounded-full border border-border/60 px-2 py-0.5 text-[10px] text-muted-foreground/60">
-                  Sending coming soon
-                </span>
-              </div>
-              <div className="space-y-1">
-                <Label
-                  htmlFor="ownerEmail"
-                  className="text-[11px] font-normal text-muted-foreground/70"
-                >
-                  Your email
-                </Label>
-                <Input
-                  id="ownerEmail"
-                  type="email"
-                  placeholder="you@example.com"
-                  className="h-8 border-border/60 bg-transparent text-xs placeholder:text-[11px] placeholder:text-muted-foreground/40"
-                  value={ownerEmail}
-                  onChange={(e) => setOwnerEmail(e.target.value)}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label
-                  htmlFor="recipientEmail"
-                  className="text-[11px] font-normal text-muted-foreground/70"
-                >
-                  Recipient email
-                </Label>
-                <Input
-                  id="recipientEmail"
-                  type="email"
-                  placeholder="friend@example.com"
-                  className="h-8 border-border/60 bg-transparent text-xs placeholder:text-[11px] placeholder:text-muted-foreground/40"
-                  value={recipientEmail}
-                  onChange={(e) => setRecipientEmail(e.target.value)}
-                />
+                <p className="text-[11px] leading-tight text-muted-foreground/60">
+                  For now, copy the link+code and send them to whoever.
+                </p>
               </div>
             </div>
             <DialogFooter>
@@ -211,9 +181,9 @@ export default function ShareDialog({ file, onClose }: ShareDialogProps) {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Save the link and code somewhere safe before you close this. The
-                code is only shown once, and without both of them this file
-                can&apos;t be opened again.
+                Save the link and code before you close this. The code shows
+                once. Resharing keeps the link but swaps in a new code, 3 times
+                max. This is code {result.shareCount} of 3.
               </p>
             </div>
 

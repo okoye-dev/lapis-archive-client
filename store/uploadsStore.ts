@@ -9,6 +9,8 @@ export interface UploadRecord {
   name: string;
   storageKey: string;
   size: number;
+  // Signed in at upload time? Picks the 3 vs 7 day retention window.
+  owned?: boolean;
   uploadedAt: string;
 }
 

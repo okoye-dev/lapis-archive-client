@@ -15,6 +15,7 @@ export interface ShareRecord {
   fileSize: number;
   storageKey: string;
   recipientEmail?: string;
+  shareCount: number;
   createdAt: string;
   expiresAt: string;
 }
@@ -55,11 +56,19 @@ export const useShareStore = create<ShareState>()(
           fileSize: created.fileSize || fileSize,
           storageKey,
           recipientEmail,
+          shareCount: created.shareCount,
           createdAt: new Date().toISOString(),
           expiresAt: created.expiresAt,
         };
 
-        set({ shares: [record, ...get().shares] });
+        // A file keeps one link for life (the backend rotates its code), so
+        // re-sharing replaces the existing entry instead of stacking a copy.
+        set({
+          shares: [
+            record,
+            ...get().shares.filter((s) => s.storageKey !== storageKey),
+          ],
+        });
         return created;
       },
     }),

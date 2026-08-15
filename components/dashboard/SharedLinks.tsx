@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { useShareStore } from "@/store/shareStore";
 import { useCopy } from "@/hooks/useCopy";
 import { useHasMounted } from "@/hooks/useHasMounted";
+import { useFormatDate as formatDate } from "@/hooks/useFormatDate";
 
 export default function SharedLinks() {
   const shares = useShareStore((state) => state.shares);
@@ -31,6 +32,10 @@ export default function SharedLinks() {
                   </span>
                   <span className="block truncate text-xs text-muted-foreground">
                     {share.link}
+                  </span>
+                  <span className="block truncate text-[11px] text-muted-foreground/70">
+                    code {share.shareCount ?? 1} of 3 · expires{" "}
+                    {formatDate(share.expiresAt)}
                   </span>
                 </div>
                 <Button

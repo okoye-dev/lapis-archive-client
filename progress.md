@@ -15,7 +15,7 @@ Where the frontend stands and what still needs doing.
 
 - **Account page** — show the signed-in user's email and their shares, with a revoke button. The API exists; the page doesn't.
 - **Email delivery** — actually send the access code to the recipient (Resend's free tier is the likely path). Today the sharer copies and sends it themselves.
-- **Retention display** — keep a file 24h if it's never shared, 3 days if the sharer left an email. Blocked on the backend exposing an upload timestamp.
+- ~~**Retention display**~~ — done. Files are deleted 3 days after upload (7 if signed in at upload time); a retention worker enforces it server-side and the dashboard shows a per-file countdown plus a cost-framed notice.
 - **Landing polish** — rewrite the motivation paragraph with the real reason we built this, and replace the placeholder graphics with real screenshots.
 
 ## Notes
