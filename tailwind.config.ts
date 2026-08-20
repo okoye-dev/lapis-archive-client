@@ -164,6 +164,19 @@ const config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.8" },
         },
+        // Modal open/close. The -50%,-50% centering translate is repeated in
+        // every frame, so only scale and opacity move; the panel can never
+        // slide in from a corner.
+        "dialog-in": {
+          "0%": { opacity: "0", transform: "translate(-50%, -50%) scale(0.95)" },
+          "100%": { opacity: "1", transform: "translate(-50%, -50%) scale(1)" },
+        },
+        "dialog-out": {
+          "0%": { opacity: "1", transform: "translate(-50%, -50%) scale(1)" },
+          "100%": { opacity: "0", transform: "translate(-50%, -50%) scale(0.95)" },
+        },
+        "overlay-in": { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+        "overlay-out": { "0%": { opacity: "1" }, "100%": { opacity: "0" } },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -176,6 +189,10 @@ const config = {
         "word-in": "word-in 0.9s cubic-bezier(0.33, 0, 0.2, 1) both",
         "word-out": "word-out 0.6s cubic-bezier(0.33, 0, 0.2, 1) both",
         "pulse-soft": "pulse-soft 1.8s ease-in-out infinite",
+        "dialog-in": "dialog-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both",
+        "dialog-out": "dialog-out 180ms cubic-bezier(0.4, 0, 1, 1) both",
+        "overlay-in": "overlay-in 220ms ease-out both",
+        "overlay-out": "overlay-out 180ms ease-in both",
       },
     },
   },
