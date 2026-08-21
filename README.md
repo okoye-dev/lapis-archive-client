@@ -27,7 +27,7 @@ Share history is remembered per-browser in `localStorage` for now; durable cross
 
 ## Quickstart
 
-Requires Node 18+, pnpm, and a running [file service](https://github.com/okoye-dev/lapis-archive-file-service) (see its README for `make dev` / `make run`).
+Requires Node 24+, pnpm, and a running [file service](https://github.com/okoye-dev/lapis-archive-file-service) (see its README for `make dev` / `make run`).
 
 ```bash
 pnpm install
