@@ -238,7 +238,7 @@ const getDownloadUrl = async (
 ): Promise<string> => {
   const query = download ? "?download=true" : "";
   const response = await fetch(
-    `${getApiBaseUrl()}/files/${storageKey}${query}`,
+    `${getApiBaseUrl()}/files/${encodeURIComponent(storageKey)}${query}`,
   );
 
   if (!response.ok) {
