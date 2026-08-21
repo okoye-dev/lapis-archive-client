@@ -44,6 +44,7 @@ export default function UploadPanel() {
     discard,
   } = useUploadQueue();
   const hasMounted = useHasMounted();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [leaving, setLeaving] = useState<string[]>([]);
   const scheduled = useRef<Set<string>>(new Set());
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -96,17 +97,15 @@ export default function UploadPanel() {
           Any file type. Nothing is sent until you press upload.
         </p>
         <input
+          ref={inputRef}
           type="file"
           multiple
           onChange={handleSelect}
           className="hidden"
-          id="file-upload"
         />
-        <label htmlFor="file-upload">
-          <Button asChild disabled={uploading}>
-            <span>{queue.length > 0 ? "Add more files" : "Choose files"}</span>
-          </Button>
-        </label>
+        <Button type="button" onClick={() => inputRef.current?.click()}>
+          {queue.length > 0 ? "Add more files" : "Choose files"}
+        </Button>
       </div>
 
       {hasMounted && (
