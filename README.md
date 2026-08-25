@@ -47,6 +47,7 @@ Set in `.env.local` (see `env.example`):
 | `NEXT_PUBLIC_API_URL` | Optional client base path; defaults to `/api/v1` (via the proxy) |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL for Email-OTP sign-in |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser-safe publishable key |
+| `NEXT_PUBLIC_SITE_URL` | Absolute site URL for OG/Twitter preview links; set to the real domain in production |
 
 Requests to the backend go through a Next.js route handler (`app/api/[...path]`) that proxies to the service, so the browser only ever calls same-origin `/api/v1/...`.
 
@@ -57,6 +58,8 @@ pnpm dev      # start the dev server
 pnpm build    # production build
 pnpm start    # serve the production build
 pnpm lint     # eslint
+pnpm test     # vitest
+pnpm format   # prettier --write .
 ```
 
 ## Tech stack
