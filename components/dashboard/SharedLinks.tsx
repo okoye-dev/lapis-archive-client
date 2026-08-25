@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { useShareStore } from "@/store/shareStore";
 import { useCopy } from "@/hooks/useCopy";
 import { useHasMounted } from "@/hooks/useHasMounted";
-import { useFormatDate as formatDate } from "@/hooks/useFormatDate";
+import { formatDate } from "@/utils/formatDate";
 
 export default function SharedLinks() {
   const shares = useShareStore((state) => state.shares);

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
 import { listMyShares, revokeShare, type ShareMeta } from "@/api/shares";
-import { useFormatDate as formatDate } from "@/hooks/useFormatDate";
+import { formatDate } from "@/utils/formatDate";
 import { formatFileSize } from "@/utils/formatFileSize";
 import { cn, softSurface } from "@/lib/utils";
 
@@ -129,7 +129,7 @@ const Account = () => {
                         {share.expired
                           ? "expired"
                           : `expires ${formatDate(share.expiresAt)}`}
-                        {` · code ${share.shareCount || 1} of 3`}
+                        {` · code ${share.shareCount ?? 1} of 3`}
                       </div>
                     </div>
                     <Button
