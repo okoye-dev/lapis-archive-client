@@ -2,8 +2,9 @@
 
 import { DownloadCloud, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FileRow } from "@/components/dashboard/FileRow";
 import { cn, softSurface } from "@/lib/utils";
-import { formatFileSize } from "@/utils/formatFileSize";
+import { fileSizeLabel } from "@/utils/formatFileSize";
 import { useUploadsStore, type UploadRecord } from "@/store/uploadsStore";
 import { useDownload } from "@/hooks/useDownload";
 import { useHasMounted } from "@/hooks/useHasMounted";
@@ -45,43 +46,39 @@ export default function UploadedFiles({ onShare }: UploadedFilesProps) {
       </h3>
       <div className="space-y-2">
         {files.map((file) => (
-          <div
+          <FileRow
             key={file.storageKey}
-            className={cn(
-              softSurface.primary,
-              "flex items-center justify-between gap-2 p-3",
-            )}
-          >
-            <div className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-medium text-foreground">
-                {file.name}
-              </span>
+            className={cn(softSurface.primary, "justify-between p-3")}
+            name={file.name}
+            meta={
               <div className="truncate text-xs text-muted-foreground">
-                {file.size ? formatFileSize(file.size) : "Size unavailable"}
+                {fileSizeLabel(file.size)}
                 {" · "}
                 {retentionLabel(file)}
               </div>
-            </div>
-            <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-              <Button
-                onClick={() => onShare(file)}
-                variant="outline"
-                size="icon"
-                aria-label="Share"
-                className="border-orange-400/40 bg-orange-400/10 text-orange-500 hover:border-orange-400/60 hover:bg-orange-400/20 hover:text-orange-600"
-              >
-                <Share2 className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={() => download(file.storageKey)}
-                variant="outline"
-                size="icon"
-                aria-label="Download"
-              >
-                <DownloadCloud className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+            }
+            action={
+              <>
+                <Button
+                  onClick={() => onShare(file)}
+                  variant="outline"
+                  size="icon"
+                  aria-label="Share"
+                  className="border-orange-400/40 bg-orange-400/10 text-orange-500 hover:border-orange-400/60 hover:bg-orange-400/20 hover:text-orange-600"
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={() => download(file.storageKey)}
+                  variant="outline"
+                  size="icon"
+                  aria-label="Download"
+                >
+                  <DownloadCloud className="h-4 w-4" />
+                </Button>
+              </>
+            }
+          />
         ))}
       </div>
       <p className="mt-3 text-[11px] leading-tight text-muted-foreground/70">

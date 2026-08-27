@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { FileRow } from "@/components/dashboard/FileRow";
 import { useToast } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
 import { listMyShares, revokeShare, type ShareMeta } from "@/api/shares";
 import { formatDate } from "@/utils/formatDate";
-import { formatFileSize } from "@/utils/formatFileSize";
+import { fileSizeLabel } from "@/utils/formatFileSize";
 import { cn, softSurface } from "@/lib/utils";
 
 const Account = () => {
@@ -110,38 +111,32 @@ const Account = () => {
             ) : (
               <div className="space-y-2">
                 {shares.map((share) => (
-                  <div
+                  <FileRow
                     key={share.slug}
-                    className={cn(
-                      softSurface.primary,
-                      "flex items-center justify-between gap-2 p-3",
-                    )}
-                  >
-                    <div className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-foreground">
-                        {share.fileName}
-                      </span>
+                    className={cn(softSurface.primary, "justify-between p-3")}
+                    name={share.fileName}
+                    meta={
                       <div className="truncate text-xs text-muted-foreground">
-                        {share.fileSize
-                          ? formatFileSize(share.fileSize)
-                          : "Size unavailable"}
+                        {fileSizeLabel(share.fileSize)}
                         {" · "}
                         {share.expired
                           ? "expired"
                           : `expires ${formatDate(share.expiresAt)}`}
                         {` · code ${share.shareCount ?? 1} of 3`}
                       </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="shrink-0"
-                      disabled={revoking === share.slug}
-                      onClick={() => handleRevoke(share.slug)}
-                    >
-                      {revoking === share.slug ? "Revoking…" : "Revoke"}
-                    </Button>
-                  </div>
+                    }
+                    action={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="shrink-0"
+                        disabled={revoking === share.slug}
+                        onClick={() => handleRevoke(share.slug)}
+                      >
+                        {revoking === share.slug ? "Revoking…" : "Revoke"}
+                      </Button>
+                    }
+                  />
                 ))}
               </div>
             )}
