@@ -27,7 +27,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <body
       className={cn(
-        "relative overflow-x-hidden leading-[1.25rem] text-black",
+        "relative overflow-x-hidden leading-[1.25rem]",
         isHomePage || isSigninPage || isSignupPage || isSharePage
           ? "bg-gradient-to-b from-primary/10 to-background"
           : ""
