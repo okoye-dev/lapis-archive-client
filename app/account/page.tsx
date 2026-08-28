@@ -130,7 +130,7 @@ const Account = () => {
                         variant="outline"
                         size="sm"
                         className="shrink-0"
-                        disabled={revoking === share.slug}
+                        disabled={!!revoking}
                         onClick={() => handleRevoke(share.slug)}
                       >
                         {revoking === share.slug ? "Revoking…" : "Revoke"}
