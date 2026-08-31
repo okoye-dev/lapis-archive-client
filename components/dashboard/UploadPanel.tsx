@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, DragEvent } from "react";
 import { Pause, Play, UploadCloud, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn, softSurface } from "@/lib/utils";
@@ -45,6 +45,7 @@ export default function UploadPanel() {
   } = useUploadQueue();
   const hasMounted = useHasMounted();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
   const [leaving, setLeaving] = useState<string[]>([]);
   const scheduled = useRef<Set<string>>(new Set());
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -81,20 +82,54 @@ export default function UploadPanel() {
     if (selected.length > 0) await stageFiles(selected);
   };
 
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (!dragging) setDragging(true);
+  };
+
+  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    // Ignore leaving into a child element; only clear when the pointer really
+    // exits the dropzone (or the window, where relatedTarget is null).
+    if (
+      event.relatedTarget instanceof Node &&
+      event.currentTarget.contains(event.relatedTarget)
+    ) {
+      return;
+    }
+    setDragging(false);
+  };
+
+  const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragging(false);
+    const dropped = Array.from(event.dataTransfer.files);
+    if (dropped.length > 0) await stageFiles(dropped);
+  };
+
   return (
     <>
       <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         className={cn(
           softSurface.primary,
-          "rounded-2xl border-dashed p-6 text-center sm:p-12",
+          "rounded-2xl border-dashed p-6 text-center transition-colors sm:p-12",
+          dragging && "border-primary bg-primary/5",
         )}
       >
-        <UploadCloud className="mx-auto mb-2 h-10 w-10 text-muted-foreground" />
+        <UploadCloud
+          className={cn(
+            "mx-auto mb-2 h-10 w-10 transition-colors",
+            dragging ? "text-primary" : "text-muted-foreground",
+          )}
+        />
         <p className="text-base font-medium text-foreground sm:text-lg">
-          Pick the files you want to share
+          {dragging ? "Drop to add them" : "Pick the files you want to share"}
         </p>
         <p className="mb-4 text-sm text-muted-foreground">
-          Any file type. Nothing is sent until you press upload.
+          Any file type. Drag them here or choose below. Nothing is sent until
+          you press upload.
         </p>
         <input
           ref={inputRef}
