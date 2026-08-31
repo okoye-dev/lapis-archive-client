@@ -1,3 +1,10 @@
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+// Unmount rendered components between tests so repeated renders don't pile up
+// in the DOM (we don't use vitest globals, so this isn't auto-registered).
+afterEach(cleanup);
+
 // This jsdom/Node combo doesn't provide a working localStorage, so zustand's
 // persist middleware crashes on setState. Install an in-memory one before any
 // store module loads.
