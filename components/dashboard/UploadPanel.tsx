@@ -259,7 +259,11 @@ export default function UploadPanel() {
             >
               {uploading
                 ? "Uploading..."
-                : `Upload ${waiting} file${waiting === 1 ? "" : "s"}`}
+                : `Upload ${waiting} file${waiting === 1 ? "" : "s"} · ${formatFileSize(
+                    queue
+                      .filter((i) => i.status === "queued")
+                      .reduce((sum, i) => sum + i.size, 0),
+                  )}`}
             </Button>
           )}
           </div>
